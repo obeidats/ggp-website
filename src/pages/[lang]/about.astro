@@ -1,0 +1,373 @@
+---
+import { Image } from 'astro:assets';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import PageHero from '@/components/PageHero.astro';
+import SectionHeading from '@/components/SectionHeading.astro';
+import Icon from '@/components/Icon.astro';
+import PulseLine from '@/components/PulseLine.astro';
+import Wave from '@/components/Wave.astro';
+import CtaBand from '@/components/CtaBand.astro';
+import { photos } from '@/data/photos';
+import { difference, homeMarket, mission, pillars, roadmap, story, values, vision, whoWeAre } from '@/data/company';
+import { langPaths, useT, type Lang } from '@/i18n/ui';
+
+export const getStaticPaths = langPaths;
+const lang = Astro.params.lang as Lang;
+const t = useT(lang);
+
+const copy = {
+  title: { en: 'About Us', ar: 'من نحن' },
+  lead: {
+    en: 'An Oman-based company connecting organisations with the local knowledge, relationships and commercial pathways to grow across Oman and the Gulf.',
+    ar: 'شركة عُمانية تربط المؤسسات بالمعرفة المحلية والعلاقات والمسارات التجارية اللازمة للنمو في عُمان ومنطقة الخليج.',
+  },
+  desc: {
+    en: 'Who we are, our story since 2014, our vision, mission and core values: trust, integrity, partnership, excellence and growth.',
+    ar: 'تعرّف على نبض الخليج العالمية: قصتنا منذ 2014، ورؤيتنا ورسالتنا وقيمنا الجوهرية: الثقة والنزاهة والشراكة والتميّز والنمو.',
+  },
+  whoEyebrow: { en: 'Our company', ar: 'شركتنا' },
+  storyEyebrow: { en: 'Our journey', ar: 'مسيرتنا' },
+  purposeEyebrow: { en: 'Our purpose', ar: 'غايتنا' },
+  valuesEyebrow: { en: 'What guides us', ar: 'ما يوجّهنا' },
+  diffEyebrow: { en: 'Our difference', ar: 'ما يميّزنا' },
+  marketEyebrow: { en: 'Where we are', ar: 'أين نحن' },
+  roadmapEyebrow: { en: 'Looking ahead', ar: 'نظرة إلى المستقبل' },
+  achieved: { en: 'Achieved', ar: 'تحقّق' },
+  now: { en: 'Current focus', ar: 'تركيزنا الحالي' },
+  goal: { en: 'Goal', ar: 'هدف' },
+};
+
+const thisYear = new Date().getFullYear();
+const stage = (y: number) => (y < thisYear ? 'achieved' : y === thisYear ? 'now' : 'goal');
+const marketFacts = [
+  { icon: 'MapPin', text: { en: 'Muscat', ar: 'مسقط' } },
+  { icon: 'Map', text: { en: 'Al Khoudh — Seeb', ar: 'الخوض — السيب' } },
+  { icon: 'Flag', text: { en: 'Sultanate of Oman', ar: 'سلطنة عُمان' } },
+  { icon: 'Mail', text: { en: 'PO Box 767', ar: 'ص.ب 767' } },
+  { icon: 'Mailbox', text: { en: 'PC 132', ar: 'الرمز البريدي 132' } },
+];
+---
+
+<BaseLayout lang={lang} title={copy.title[lang]} description={copy.desc[lang]} overlayHeader>
+  <PageHero lang={lang} title={copy.title[lang]} lead={copy.lead[lang]} photo="nizwaFort" crumbs={[{ label: t('nav.about') }]} />
+
+  <!-- WHO WE ARE -->
+  <section class="section">
+    <div class="container split split--wide-end">
+      <div class="photo photo--arc who-photo" data-reveal>
+        <Image src={photos.mosqueCourtyard.src} alt={photos.mosqueCourtyard.alt[lang]} widths={[480, 800, 1100]} sizes="(min-width: 960px) 40vw, 100vw" />
+      </div>
+      <div class="stack" style="--stack:1.2rem">
+        <SectionHeading eyebrow={copy.whoEyebrow[lang]} title={whoWeAre.title[lang]} accent={lang === 'ar' ? 'نحن' : 'Are'} />
+        {whoWeAre.paragraphs.map((p) => <p class="who-text" data-reveal>{p[lang]}</p>)}
+        <ul role="list" class="highlights" data-reveal>
+          {
+            whoWeAre.highlights.map((h) => (
+              <li>
+                <span class="icon-badge icon-badge--sm"><Icon name={h.icon} /></span>
+                <div>
+                  <strong>{h.title[lang]}</strong>
+                  <span>{h.text[lang]}</span>
+                </div>
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- PILLARS -->
+  <section class="section section--white">
+    <div class="container">
+      <SectionHeading title={pillars.title[lang]} accent={lang === 'ar' ? 'وشريكٌ عملي.' : 'A Practical Partner.'} center />
+      <ul role="list" class="pillars">
+        {
+          pillars.items.map((p, i) => (
+            <li data-reveal style={`--delay:${i * 0.1}s`}>
+              <span class="icon-badge icon-badge--lg"><Icon name={p.icon} /></span>
+              <h3>{p.title[lang]}</h3>
+              <hr class="card-rule" />
+              <p>{p.text[lang]}</p>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </section>
+
+  <!-- STORY -->
+  <section class="section">
+    <div class="container">
+      <SectionHeading eyebrow={copy.storyEyebrow[lang]} title={story.title[lang]} lead={story.subtitle[lang]} center />
+      <ol role="list" class="timeline">
+        {
+          story.steps.map((s, i) => (
+            <li data-reveal style={`--delay:${i * 0.1}s`}>
+              <span class="tl-icon"><Icon name={s.icon} size={30} /></span>
+              <h3>{s.title[lang]}</h3>
+              <p>{s.text[lang]}</p>
+            </li>
+          ))
+        }
+      </ol>
+      <blockquote class="quote" data-reveal>
+        <Icon name="Quote" size={30} />
+        <p>{story.quote[lang]}</p>
+      </blockquote>
+    </div>
+  </section>
+
+  <!-- VISION & MISSION -->
+  <Wave fill="var(--ink)" bg="var(--cream)" />
+  <section class="section section--dark purpose">
+    <div class="container">
+      <div class="vm">
+        <article class="vision" data-reveal>
+          <p class="eyebrow">{copy.purposeEyebrow[lang]}</p>
+          <p class="big-word" aria-hidden="true">{lang === 'ar' ? 'الرؤية' : 'VISION'}</p>
+          <h2><Icon name="Eye" size={28} />{vision.title[lang]}</h2>
+          <PulseLine width={180} />
+          <p class="statement">{vision.text[lang]}</p>
+        </article>
+        <article class="mission" data-reveal style="--delay:.15s">
+          <h2><Icon name="Compass" size={28} />{mission.title[lang]}</h2>
+          <PulseLine width={180} />
+          <p class="statement">{mission.text[lang]}</p>
+          <ol role="list" class="mission-steps">
+            {
+              mission.steps.map((m) => (
+                <li>
+                  <span class="icon-badge"><Icon name={m.icon} /></span>
+                  <strong>{m.title[lang]}</strong>
+                  <span>{m.text[lang]}</span>
+                </li>
+              ))
+            }
+          </ol>
+        </article>
+      </div>
+    </div>
+  </section>
+  <Wave fill="var(--cream)" bg="var(--ink)" />
+
+  <!-- VALUES -->
+  <section class="section">
+    <div class="container">
+      <SectionHeading eyebrow={copy.valuesEyebrow[lang]} title={values.title[lang]} accent={lang === 'ar' ? 'الجوهرية' : 'Core Values'} center />
+      <ul role="list" class="values">
+        {
+          values.items.map((v, i) => (
+            <li class="card card--dark" data-reveal style={`--delay:${i * 0.08}s`}>
+              <span class="icon-badge icon-badge--lg"><Icon name={v.icon} /></span>
+              <h3>{v.title[lang]}</h3>
+              <p>{v.text[lang]}</p>
+              <hr class="card-rule" />
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </section>
+
+  <!-- DIFFERENCE -->
+  <section class="section section--white">
+    <div class="container">
+      <SectionHeading eyebrow={copy.diffEyebrow[lang]} title={difference.title[lang]} accent="GGP" lead={difference.lead[lang]} center />
+      <ul role="list" class="grid diff">
+        {
+          difference.items.map((d, i) => (
+            <li class="card" data-reveal style={`--delay:${(i % 3) * 0.08}s`}>
+              <span class="icon-badge icon-badge--lg"><Icon name={d.icon} /></span>
+              <div>
+                <h3>{d.title[lang]}</h3>
+                <hr class="card-rule" />
+                <p>{d.text[lang]}</p>
+              </div>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </section>
+
+  <!-- HOME MARKET -->
+  <section class="section">
+    <div class="container split split--wide-start">
+      <div>
+        <SectionHeading eyebrow={copy.marketEyebrow[lang]} title={homeMarket.title[lang]} accent={lang === 'ar' ? 'سوقنا الأم' : 'Our Home Market'} lead={homeMarket.text[lang]} />
+        <ul role="list" class="market-facts" data-reveal>
+          {
+            marketFacts.map((f) => (
+              <li>
+                <span class="icon-badge icon-badge--sm"><Icon name={f.icon} /></span>
+                {f.text[lang]}
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+      <div class="photo photo--arc market-photo" data-reveal>
+        <Image src={photos.muttrahCorniche.src} alt={photos.muttrahCorniche.alt[lang]} widths={[480, 800, 1100]} sizes="(min-width: 960px) 45vw, 100vw" />
+      </div>
+    </div>
+  </section>
+
+  <!-- ROADMAP -->
+  <section class="section section--sand">
+    <div class="container">
+      <SectionHeading eyebrow={copy.roadmapEyebrow[lang]} title={roadmap.title[lang]} accent={lang === 'ar' ? 'الفصل القادم' : 'the Next Chapter'} center />
+      <ol role="list" class="roadmap">
+        {
+          roadmap.milestones.map((m, i) => {
+            const st = stage(m.year);
+            return (
+              <li class={st} data-reveal style={`--delay:${i * 0.1}s`}>
+                <span class="rm-icon"><Icon name={m.icon} size={34} /></span>
+                <span class="rm-year">{m.year}</span>
+                <h3>{m.title[lang]}</h3>
+                <span class="rm-tag">{copy[st][lang]}</span>
+              </li>
+            );
+          })
+        }
+      </ol>
+      <p class="rm-closing" data-reveal><Icon name="Globe" size={26} />{roadmap.closing[lang]}</p>
+    </div>
+  </section>
+
+  <CtaBand lang={lang} />
+</BaseLayout>
+
+<style>
+  .who-photo { aspect-ratio: 4 / 5; }
+  .who-photo :global(img), .market-photo :global(img) { width: 100%; height: 100%; object-fit: cover; }
+  .who-text { color: var(--text-muted); font-size: var(--step-1); }
+  .highlights { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr)); gap: 0.9rem; margin-block-start: 2rem !important; }
+  .highlights li { display: flex; align-items: center; gap: 0.9rem; padding: 1rem; border-radius: var(--radius); background: var(--white); border: 1px solid var(--line); }
+  .highlights div { display: grid; line-height: 1.35; }
+  .highlights strong { color: var(--ink); }
+  .highlights span { color: var(--gold-deep); font-size: var(--step--1); font-weight: 600; }
+
+  .pillars { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr)); }
+  .pillars li { display: grid; justify-items: center; text-align: center; padding: 1.5rem 2rem; }
+  .pillars li + li { border-inline-start: 1px solid var(--line); }
+  @media (max-width: 900px) { .pillars li + li { border-inline-start: 0; border-block-start: 1px solid var(--line); } }
+  .pillars h3 { margin-block-start: 1.25rem; font-size: var(--step-3); text-transform: uppercase; letter-spacing: 0.02em; }
+  :root[lang='ar'] .pillars h3 { text-transform: none; }
+  .pillars p { color: var(--text-muted); }
+
+  .timeline { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 190px), 1fr)); gap: 2rem 1.25rem; position: relative; }
+  @media (min-width: 1000px) {
+    .timeline::before { content: ''; position: absolute; top: 44px; inset-inline: 10%; height: 2px; background: repeating-linear-gradient(90deg, var(--gold) 0 10px, transparent 10px 18px); }
+  }
+  .timeline li { position: relative; display: grid; justify-items: center; align-content: start; text-align: center; gap: 0.5rem; }
+  .tl-icon {
+    width: 88px;
+    height: 88px;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    background: var(--white);
+    color: var(--ink);
+    box-shadow: var(--shadow), inset 0 0 0 3px var(--gold-light);
+    position: relative;
+    z-index: 1;
+    margin-block-end: 0.75rem;
+  }
+  .timeline h3 { font-size: var(--step-2); }
+  .timeline li:first-child h3 { font-family: var(--font-display); font-size: var(--step-3); }
+  .timeline p { color: var(--text-muted); font-size: var(--step--1); max-width: 24ch; }
+  :root[lang='ar'] .timeline p { font-size: var(--step-0); }
+  .quote {
+    display: flex;
+    gap: 1rem;
+    align-items: flex-start;
+    max-width: 860px;
+    margin: clamp(3rem, 5vw, 4.5rem) auto 0;
+    padding: 1.75rem 2rem;
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--gold-light);
+    background: var(--white);
+    font-family: var(--font-display);
+    font-size: var(--step-2);
+    color: var(--ink);
+    line-height: 1.4;
+  }
+  .quote :global(svg) { color: var(--gold); flex: none; }
+  [dir='rtl'] .quote :global(svg) { transform: scaleX(-1); }
+
+  .purpose { background: radial-gradient(ellipse 50% 70% at 0% 30%, rgba(195, 145, 45, 0.16), transparent 60%), radial-gradient(ellipse 50% 70% at 100% 100%, rgba(0, 104, 117, 0.3), transparent 60%), var(--ink); }
+  .vm { display: grid; gap: 2rem; }
+  @media (min-width: 960px) { .vm { grid-template-columns: 1fr 1.2fr; } }
+  .vm article { position: relative; padding: clamp(1.75rem, 1rem + 2vw, 3rem); border-radius: var(--radius-lg); background: var(--ink-2); border: 1px solid var(--line-dark); overflow: hidden; }
+  .big-word {
+    font-family: var(--font-display);
+    font-size: clamp(4rem, 2rem + 7vw, 8rem);
+    line-height: 1;
+    font-weight: 600;
+    margin-block: 0.5rem 1.5rem;
+    background: linear-gradient(100deg, var(--gold-light), var(--gold) 60%, #8a6219);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  .vm h2 { display: flex; align-items: center; gap: 0.7rem; font-size: var(--step-3); }
+  .vm h2 :global(svg) { color: var(--gold-light); }
+  .statement { margin-block-start: 1rem; font-size: var(--step-1); color: var(--text-on-dark); line-height: 1.65; }
+  .mission-steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-block-start: 2rem; }
+  @media (max-width: 560px) { .mission-steps { grid-template-columns: 1fr; } }
+  .mission-steps li { display: grid; justify-items: center; text-align: center; gap: 0.4rem; padding: 1.25rem 0.75rem; border-radius: var(--radius); border: 1px solid var(--line-dark); }
+  .mission-steps strong { color: var(--gold-light); font-size: var(--step-1); }
+  .mission-steps span:last-child { font-size: var(--step--1); color: var(--text-on-dark-muted); }
+  :root[lang='ar'] .mission-steps span:last-child { font-size: var(--step-0); }
+
+  .values { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 1fr)); gap: 1.25rem; }
+  .values li { display: grid; justify-items: center; align-content: start; text-align: center; gap: 0.6rem; padding-block: 2rem 1.5rem; }
+  .values h3 { font-size: var(--step-1) !important; text-transform: uppercase; letter-spacing: 0.04em; margin-block-start: 0.6rem; }
+  :root[lang='ar'] .values h3 { text-transform: none; letter-spacing: 0; }
+
+  .diff { grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 1fr)); }
+  .diff .card { display: flex; gap: 1.25rem; align-items: flex-start; }
+  .diff h3 { font-size: var(--step-1) !important; font-family: var(--font-body); font-weight: 800; }
+  :root[lang='ar'] .diff h3 { font-family: var(--font-display); }
+  .diff .card-rule { margin-block: 0.6rem; }
+
+  .market-facts { display: grid; gap: 0.7rem; margin-block-start: 2rem; max-width: 420px; }
+  .market-facts li { display: flex; align-items: center; gap: 1rem; padding-block-end: 0.7rem; border-block-end: 1px solid var(--line); font-weight: 600; color: var(--ink); }
+  .market-photo { aspect-ratio: 5 / 4; }
+
+  .roadmap { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 180px), 1fr)); gap: 1.5rem 1rem; position: relative; }
+  @media (min-width: 1000px) {
+    .roadmap::before { content: ''; position: absolute; top: 172px; inset-inline: 8%; height: 2px; background: var(--gold); opacity: 0.6; }
+  }
+  .roadmap li { position: relative; display: grid; justify-items: center; align-content: start; text-align: center; gap: 0.75rem; }
+  .rm-icon { width: 104px; height: 104px; display: grid; place-items: center; border-radius: 50%; border: 2px solid var(--ink); background: var(--white); color: #a8781f; }
+  .rm-year { position: relative; z-index: 1; margin-block-start: 1.2rem; padding: 0.4rem 1.5rem; border-radius: 999px; background: var(--ink); color: var(--text-on-dark); font-weight: 800; font-size: var(--step-1); font-variant-numeric: tabular-nums; }
+  .roadmap li:nth-child(even) .rm-year { background: #a8781f; }
+  .roadmap h3 { font-family: var(--font-body); font-size: var(--step-0); font-weight: 700; color: var(--ink); }
+  .rm-tag { font-size: 0.75rem; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; padding: 0.15rem 0.6rem; border-radius: 999px; }
+  :root[lang='ar'] .rm-tag { letter-spacing: 0; font-size: 0.85rem; }
+  .achieved .rm-tag { color: var(--ink); background: var(--white); border: 1px solid var(--line); }
+  .now .rm-tag { color: var(--ink); background: var(--gold-light); }
+  .now .rm-icon { border-color: var(--gold); box-shadow: 0 0 0 6px rgba(195, 145, 45, 0.18); }
+  .goal .rm-tag { color: var(--gold-deep); border: 1px dashed var(--gold); }
+  .goal .rm-icon { border-style: dashed; }
+  .rm-closing {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    width: fit-content;
+    margin: 3rem auto 0;
+    padding: 1rem 2rem;
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--gold);
+    background: var(--white);
+    font-family: var(--font-display);
+    font-size: var(--step-2);
+    color: var(--ink);
+    text-align: center;
+  }
+  .rm-closing :global(svg) { color: #a8781f; flex: none; }
+</style>

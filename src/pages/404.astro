@@ -1,0 +1,35 @@
+---
+import { site } from '@/config/site';
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Page not found | {site.name.en}</title>
+    <meta name="robots" content="noindex" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <style>
+      body { margin: 0; min-height: 100vh; display: grid; place-items: center; background: #0a1a2b; color: #f4efe6; font-family: system-ui, 'Segoe UI', Tahoma, sans-serif; text-align: center; padding: 2rem; }
+      img { width: 240px; height: auto; margin: 0 auto 2rem; }
+      h1 { font-size: 4rem; margin: 0; color: #e2c07e; font-family: Georgia, serif; }
+      p { color: #b9c1bf; margin: 0.5rem 0; }
+      .links { display: flex; gap: 1rem; justify-content: center; margin-top: 2rem; flex-wrap: wrap; }
+      a { display: inline-block; padding: 0.8rem 1.5rem; border-radius: 999px; background: #c3912d; color: #0a1a2b; font-weight: 700; text-decoration: none; }
+      a.alt { background: transparent; color: #f4efe6; border: 1.5px solid #c3912d; }
+    </style>
+  </head>
+  <body>
+    <main>
+      <img src="/brand/logo-light.svg" alt={site.name.en} width="289" height="83" />
+      <h1>404</h1>
+      <p>Sorry, we couldn’t find that page.</p>
+      <p dir="rtl" lang="ar">عذراً، لم نتمكن من العثور على هذه الصفحة.</p>
+      <div class="links">
+        <a href="/en/">Back to home</a>
+        <a href="/ar/" class="alt" lang="ar">العودة إلى الرئيسية</a>
+      </div>
+    </main>
+  </body>
+</html>

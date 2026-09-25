@@ -1,0 +1,276 @@
+---
+/**
+ * Live network background for the home hero.
+ * Drifting nodes link up when close, gold "pulses" travel along the links,
+ * a heartbeat line sweeps across like a monitor, the pointer joins the network,
+ * and a click/tap sends a ripple through it. Static frame for reduced motion;
+ * pauses when off-screen or the tab is hidden.
+ */
+---
+
+<canvas class="hero-network" aria-hidden="true" data-hero-network></canvas>
+
+<script>
+  type Node = { x: number; y: number; vx: number; vy: number; r: number; hub: boolean; phase: number };
+  type Pulse = { a: Node; b: Node; t: number; speed: number };
+  type Ripple = { x: number; y: number; r: number; alpha: number };
+
+  const canvas = document.querySelector<HTMLCanvasElement>('[data-hero-network]');
+  const ctx = canvas?.getContext('2d');
+
+  if (canvas && ctx) {
+    const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const rtl = document.documentElement.dir === 'rtl';
+    const GOLD = '226, 192, 126';
+    const TEAL = '64, 178, 190';
+
+    let w = 0, h = 0, dpr = 1;
+    let nodes: Node[] = [];
+    let pulses: Pulse[] = [];
+    let ripples: Ripple[] = [];
+    let linkDist = 150;
+    const pointer = { x: -9999, y: -9999, active: false };
+    let running = false;
+    let raf = 0;
+    let last = performance.now();
+    let sweep = 0; // heartbeat sweep position 0..1
+
+    const rand = (a: number, b: number) => a + Math.random() * (b - a);
+
+    function build() {
+      const rect = canvas!.getBoundingClientRect();
+      w = rect.width;
+      h = rect.height;
+      dpr = Math.min(window.devicePixelRatio || 1, 2);
+      canvas!.width = Math.round(w * dpr);
+      canvas!.height = Math.round(h * dpr);
+      ctx!.setTransform(dpr, 0, 0, dpr, 0, 0);
+      linkDist = w < 700 ? 110 : 150;
+      const count = Math.round(Math.min(110, Math.max(36, (w * h) / 15000)));
+      nodes = Array.from({ length: count }, (_, i) => {
+        const hub = i % 11 === 0;
+        return { x: rand(0, w), y: rand(0, h), vx: rand(-0.18, 0.18), vy: rand(-0.14, 0.14), r: hub ? rand(2.6, 3.4) : rand(1, 1.9), hub, phase: rand(0, Math.PI * 2) };
+      });
+      pulses = [];
+    }
+
+    function spawnPulse(from?: Node) {
+      const a = from ?? nodes[Math.floor(Math.random() * nodes.length)]!;
+      let best: Node | null = null;
+      let bestD = Infinity;
+      for (const b of nodes) {
+        if (b === a) continue;
+        const d = Math.hypot(a.x - b.x, a.y - b.y);
+        if (d < linkDist && d < bestD && Math.random() > 0.35) { best = b; bestD = d; }
+      }
+      if (best) pulses.push({ a, b: best, t: 0, speed: rand(0.6, 1.2) });
+    }
+
+    // ECG-style offset for a given x (px), repeating every `period` px
+    function ecg(x: number, period: number, amp: number) {
+      const p = ((x % period) + period) % period / period;
+      if (p < 0.40) return 0;
+      if (p < 0.44) return -amp * 0.18 * Math.sin(((p - 0.40) / 0.04) * Math.PI);
+      if (p < 0.47) return amp * 0.25 * ((p - 0.44) / 0.03);
+      if (p < 0.50) return amp * 0.25 - amp * 1.25 * ((p - 0.47) / 0.03);
+      if (p < 0.535) return -amp + amp * 1.45 * ((p - 0.50) / 0.035);
+      if (p < 0.56) return amp * 0.45 - amp * 0.45 * ((p - 0.535) / 0.025);
+      if (p < 0.66) return -amp * 0.12 * Math.sin(((p - 0.56) / 0.1) * Math.PI);
+      return 0;
+    }
+
+    // Heartbeat "monitor" drawn in the open area opposite the text column
+    function drawHeartbeat() {
+      const narrow = w < 900;
+      const x0 = narrow ? 0 : w * 0.5; // band start (in LTR terms)
+      const bw = w - x0;
+      const y0 = narrow ? h * 0.9 : h * 0.44;
+      const period = Math.max(220, bw / 2.6);
+      const amp = Math.min(narrow ? 22 : 50, h * 0.06);
+      const head = sweep * bw;
+      const trail = bw * 0.7;
+      const X = (x: number) => (rtl ? w - (x0 + x) : x0 + x);
+      const edgeFade = (x: number) => Math.min(1, x / (bw * 0.15)); // soft start of the band
+      ctx!.lineWidth = 1.6;
+      ctx!.lineCap = 'round';
+      for (let x = 0; x < bw; x += 3) {
+        const x2 = Math.min(bw, x + 3);
+        const inTrail = x < head && x > head - trail;
+        const a = inTrail ? 0.08 + ((x - (head - trail)) / trail) * 0.85 : 0.07;
+        ctx!.strokeStyle = `rgba(${GOLD}, ${a * edgeFade(x)})`;
+        ctx!.beginPath();
+        ctx!.moveTo(X(x), y0 + ecg(x, period, amp));
+        ctx!.lineTo(X(x2), y0 + ecg(x2, period, amp));
+        ctx!.stroke();
+      }
+      if (head <= bw) {
+        const hx = X(head);
+        const hy = y0 + ecg(head, period, amp);
+        const g = ctx!.createRadialGradient(hx, hy, 0, hx, hy, 18);
+        g.addColorStop(0, `rgba(${GOLD}, ${0.9 * edgeFade(head)})`);
+        g.addColorStop(1, `rgba(${GOLD}, 0)`);
+        ctx!.fillStyle = g;
+        ctx!.beginPath();
+        ctx!.arc(hx, hy, 18, 0, Math.PI * 2);
+        ctx!.fill();
+      }
+    }
+
+    function frame(now: number) {
+      const dt = Math.min(48, now - last) / 16.67;
+      last = now;
+      ctx!.clearRect(0, 0, w, h);
+
+      // move nodes
+      for (const n of nodes) {
+        if (!reduce) {
+          n.x += n.vx * dt;
+          n.y += n.vy * dt;
+          if (pointer.active) {
+            const dx = pointer.x - n.x, dy = pointer.y - n.y;
+            const d = Math.hypot(dx, dy);
+            if (d < 200 && d > 1) { n.x += (dx / d) * 0.35 * dt; n.y += (dy / d) * 0.35 * dt; }
+          }
+          if (n.x < -20) n.x = w + 20; else if (n.x > w + 20) n.x = -20;
+          if (n.y < -20) n.y = h + 20; else if (n.y > h + 20) n.y = -20;
+          n.phase += 0.03 * dt;
+        }
+      }
+
+      // links
+      ctx!.lineWidth = 1;
+      for (let i = 0; i < nodes.length; i++) {
+        const a = nodes[i]!;
+        for (let j = i + 1; j < nodes.length; j++) {
+          const b = nodes[j]!;
+          const d = Math.hypot(a.x - b.x, a.y - b.y);
+          if (d < linkDist) {
+            const alpha = (1 - d / linkDist) * 0.35;
+            ctx!.strokeStyle = a.hub || b.hub ? `rgba(${GOLD}, ${alpha})` : `rgba(${TEAL}, ${alpha})`;
+            ctx!.beginPath();
+            ctx!.moveTo(a.x, a.y);
+            ctx!.lineTo(b.x, b.y);
+            ctx!.stroke();
+          }
+        }
+        // pointer joins the network
+        if (pointer.active) {
+          const d = Math.hypot(a.x - pointer.x, a.y - pointer.y);
+          if (d < 200) {
+            ctx!.strokeStyle = `rgba(${GOLD}, ${(1 - d / 200) * 0.6})`;
+            ctx!.beginPath();
+            ctx!.moveTo(a.x, a.y);
+            ctx!.lineTo(pointer.x, pointer.y);
+            ctx!.stroke();
+          }
+        }
+      }
+
+      // nodes
+      for (const n of nodes) {
+        if (n.hub) {
+          const ring = 6 + Math.sin(n.phase) * 3;
+          ctx!.strokeStyle = `rgba(${GOLD}, 0.35)`;
+          ctx!.beginPath();
+          ctx!.arc(n.x, n.y, ring, 0, Math.PI * 2);
+          ctx!.stroke();
+        }
+        ctx!.fillStyle = n.hub ? `rgba(${GOLD}, 0.95)` : `rgba(${TEAL}, 0.75)`;
+        ctx!.beginPath();
+        ctx!.arc(n.x, n.y, n.r, 0, Math.PI * 2);
+        ctx!.fill();
+      }
+
+      if (!reduce) {
+        // travelling pulses
+        if (pulses.length < 14 && Math.random() < 0.08 * dt) spawnPulse();
+        pulses = pulses.filter((p) => {
+          p.t += 0.012 * p.speed * dt;
+          if (p.t >= 1) {
+            if (Math.random() < 0.55) spawnPulse(p.b); // relay onwards
+            return false;
+          }
+          const x = p.a.x + (p.b.x - p.a.x) * p.t;
+          const y = p.a.y + (p.b.y - p.a.y) * p.t;
+          const g = ctx!.createRadialGradient(x, y, 0, x, y, 8);
+          g.addColorStop(0, `rgba(${GOLD}, 1)`);
+          g.addColorStop(1, `rgba(${GOLD}, 0)`);
+          ctx!.fillStyle = g;
+          ctx!.beginPath();
+          ctx!.arc(x, y, 8, 0, Math.PI * 2);
+          ctx!.fill();
+          return true;
+        });
+
+        // ripples from clicks/taps
+        ripples = ripples.filter((r) => {
+          r.r += 4.5 * dt;
+          r.alpha -= 0.012 * dt;
+          if (r.alpha <= 0) return false;
+          ctx!.strokeStyle = `rgba(${GOLD}, ${r.alpha})`;
+          ctx!.lineWidth = 1.5;
+          ctx!.beginPath();
+          ctx!.arc(r.x, r.y, r.r, 0, Math.PI * 2);
+          ctx!.stroke();
+          return true;
+        });
+
+        sweep += 0.0035 * dt;
+        if (sweep > 1.35) sweep = 0;
+      } else {
+        sweep = 0.75;
+      }
+      drawHeartbeat();
+
+      if (running) raf = requestAnimationFrame(frame);
+    }
+
+    function start() {
+      if (running || reduce) return;
+      running = true;
+      last = performance.now();
+      raf = requestAnimationFrame(frame);
+    }
+    function stop() {
+      running = false;
+      cancelAnimationFrame(raf);
+    }
+
+    build();
+    frame(performance.now()); // first (or only, for reduced motion) frame
+
+    new ResizeObserver(() => { build(); if (!running) frame(performance.now()); }).observe(canvas);
+    new IntersectionObserver(([e]) => (e!.isIntersecting ? start() : stop())).observe(canvas);
+    document.addEventListener('visibilitychange', () => (document.hidden ? stop() : start()));
+
+    // Pointer interaction is attached to the hero section (canvas sits behind the content)
+    const hero = canvas.closest('section') ?? canvas;
+    const toLocal = (e: PointerEvent) => {
+      const r = canvas.getBoundingClientRect();
+      return { x: e.clientX - r.left, y: e.clientY - r.top };
+    };
+    hero.addEventListener('pointermove', (e) => {
+      const ev = e as PointerEvent;
+      if (ev.pointerType === 'touch') return;
+      const p = toLocal(ev);
+      pointer.x = p.x; pointer.y = p.y; pointer.active = true;
+    });
+    hero.addEventListener('pointerleave', () => { pointer.active = false; });
+    hero.addEventListener('pointerdown', (e) => {
+      const target = e.target as HTMLElement;
+      if (target.closest('a, button')) return;
+      const p = toLocal(e as PointerEvent);
+      ripples.push({ x: p.x, y: p.y, r: 4, alpha: 0.8 });
+      // fire pulses from the nodes nearest the tap
+      nodes
+        .map((n) => ({ n, d: Math.hypot(n.x - p.x, n.y - p.y) }))
+        .sort((a, b) => a.d - b.d)
+        .slice(0, 5)
+        .forEach(({ n }) => spawnPulse(n));
+    });
+  }
+</script>
+
+<style>
+  .hero-network { position: absolute; inset: 0; width: 100%; height: 100%; z-index: -1; pointer-events: none; }
+</style>

@@ -1,0 +1,21 @@
+---
+/** Curved gold-edged transition between sections (the profile's signature curve). */
+interface Props {
+  /** Colour of the section below the wave. */
+  fill?: string;
+  /** Colour of the section above the wave. */
+  bg?: string;
+  flip?: boolean;
+}
+const { fill = 'var(--ink)', bg = 'transparent', flip = false } = Astro.props;
+---
+
+<svg
+  class="wave"
+  viewBox="0 0 1440 80"
+  preserveAspectRatio="none"
+  aria-hidden="true"
+  style={`background:${bg};${flip ? 'transform:scaleY(-1)' : ''}`}>
+  <path d="M0 58C260 18 520 4 760 22s460 48 680 6V80H0Z" fill={fill}></path>
+  <path class="edge" d="M0 58C260 18 520 4 760 22s460 48 680 6"></path>
+</svg>

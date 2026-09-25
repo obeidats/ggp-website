@@ -1,0 +1,128 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import PageHero from '@/components/PageHero.astro';
+import SectionHeading from '@/components/SectionHeading.astro';
+import Icon from '@/components/Icon.astro';
+import ContactForm from '@/components/ContactForm.astro';
+import { site } from '@/config/site';
+import { langPaths, useT, type Lang } from '@/i18n/ui';
+
+export const getStaticPaths = langPaths;
+const lang = Astro.params.lang as Lang;
+const t = useT(lang);
+
+const copy = {
+  title: { en: 'Let’s Connect', ar: 'لنتواصل' },
+  lead: { en: 'Opportunity starts with a conversation.', ar: 'كل فرصة تبدأ بحوار.' },
+  desc: {
+    en: 'Contact Global Gulf Pulse in Al Khoudh, Seeb, Muscat. Phone +968 97280130, email info@ggp-oman.com.',
+    ar: 'تواصلوا مع نبض الخليج العالمية في الخوض، السيب، مسقط. الهاتف 97280130 968+، البريد info@ggp-oman.com.',
+  },
+  formEyebrow: { en: 'Send us a message', ar: 'أرسلوا لنا رسالة' },
+  formTitle: { en: 'How can we help?', ar: 'كيف يمكننا مساعدتكم؟' },
+  formLead: {
+    en: 'Share a few details and our team will reply by email or phone.',
+    ar: 'شاركونا بعض التفاصيل وسيتواصل معكم فريقنا عبر البريد الإلكتروني أو الهاتف.',
+  },
+  directions: { en: 'Get directions', ar: 'احصل على الاتجاهات' },
+  mapTitle: { en: 'Map showing Al Khoudh, Seeb, Muscat', ar: 'خريطة توضح موقع الخوض، السيب، مسقط' },
+  hours: { en: 'Reach us directly', ar: 'تواصلوا معنا مباشرة' },
+};
+
+const channels = [
+  { icon: 'Phone', label: t('label.phone'), value: site.phone, href: site.phoneHref, ltr: true },
+  { icon: 'Mail', label: t('label.email'), value: site.email, href: `mailto:${site.email}`, ltr: true },
+  { icon: 'Globe', label: t('label.website'), value: site.domain, href: site.url, ltr: true },
+];
+---
+
+<BaseLayout lang={lang} title={copy.title[lang]} description={copy.desc[lang]} overlayHeader>
+  <PageHero lang={lang} title={copy.title[lang]} lead={copy.lead[lang]} photo="muscatHills" crumbs={[{ label: t('nav.contact') }]} />
+
+  <section class="section">
+    <div class="container layout">
+      <aside class="info on-dark" data-reveal>
+        <img src="/brand/logo-light.svg" alt={site.name[lang]} width="289" height="83" class="info-logo" />
+        <p class="eyebrow">{copy.hours[lang]}</p>
+        <ul role="list" class="channels">
+          {
+            channels.map((ch) => (
+              <li>
+                <span class="icon-badge icon-badge--sm"><Icon name={ch.icon} /></span>
+                <div>
+                  <span class="label">{ch.label}</span>
+                  <a href={ch.href} dir={ch.ltr ? 'ltr' : undefined}>
+                    {ch.value}
+                  </a>
+                </div>
+              </li>
+            ))
+          }
+          <li>
+            <span class="icon-badge icon-badge--sm"><Icon name="MapPin" /></span>
+            <div>
+              <span class="label">{t('label.address')}</span>
+              <address>{site.address[lang].map((line) => <span>{line}</span>)}</address>
+            </div>
+          </li>
+        </ul>
+      </aside>
+
+      <div class="form-card" data-reveal style="--delay:.1s">
+        <SectionHeading eyebrow={copy.formEyebrow[lang]} title={copy.formTitle[lang]} lead={copy.formLead[lang]} />
+        <ContactForm lang={lang} />
+      </div>
+    </div>
+  </section>
+
+  <section class="map-section">
+    <div class="container">
+      <div class="map" data-reveal>
+        <iframe
+          title={copy.mapTitle[lang]}
+          src={site.mapEmbed}
+          loading="lazy"
+          referrerpolicy="no-referrer-when-downgrade"
+          allowfullscreen></iframe>
+        <a class="btn map-btn" href={site.mapLink} target="_blank" rel="noopener"><Icon name="Navigation" />{copy.directions[lang]}</a>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .layout { display: grid; gap: 2rem; align-items: start; }
+  @media (min-width: 1000px) { .layout { grid-template-columns: 0.8fr 1.2fr; } }
+  .info {
+    display: grid;
+    gap: 1.5rem;
+    padding: clamp(1.75rem, 1rem + 2vw, 2.75rem);
+    border-radius: var(--radius-lg);
+    background:
+      radial-gradient(circle at 100% 0%, rgba(195, 145, 45, 0.22), transparent 50%),
+      radial-gradient(circle at 0% 100%, rgba(0, 104, 117, 0.3), transparent 55%),
+      var(--ink);
+    color: var(--text-on-dark-muted);
+    border: 1px solid var(--gold);
+    box-shadow: var(--shadow-lg);
+  }
+  @media (min-width: 1000px) { .info { position: sticky; top: calc(var(--header-h) + 1.5rem); } }
+  .info-logo { width: 220px; height: auto; }
+  .channels { display: grid; gap: 1.1rem; }
+  .channels li { display: flex; gap: 1rem; align-items: center; }
+  .channels div { display: grid; line-height: 1.45; }
+  .label { font-size: 0.78rem; font-weight: 800; letter-spacing: 0.12em; text-transform: uppercase; color: var(--gold-light); }
+  :root[lang='ar'] .label { letter-spacing: 0; font-size: 0.9rem; }
+  .channels a, address { color: var(--text-on-dark); font-weight: 600; font-style: normal; }
+  [dir='rtl'] .channels a[dir='ltr'] { text-align: right; }
+  .channels a:hover { color: var(--gold-light); }
+  address { display: grid; }
+  .form-card { padding: clamp(1.75rem, 1rem + 2vw, 3rem); border-radius: var(--radius-lg); background: var(--white); border: 1px solid var(--line); box-shadow: var(--shadow); }
+  .form-card :global(.heading h2) { font-size: var(--step-3); }
+  .form-card :global(.heading + *) { margin-block-start: 2rem; }
+
+  .map-section { padding-block-end: var(--section); }
+  .map { position: relative; border-radius: var(--radius-lg); overflow: hidden; box-shadow: var(--shadow-lg); border: 1px solid var(--line); height: clamp(360px, 40vw, 520px); background: var(--sand); }
+  iframe { width: 100%; height: 100%; border: 0; display: block; filter: saturate(0.85); }
+  .map-btn { position: absolute; bottom: 1.25rem; inset-inline-start: 1.25rem; }
+</style>

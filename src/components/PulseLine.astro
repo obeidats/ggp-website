@@ -1,0 +1,30 @@
+---
+/** The brand's heartbeat line — used as a divider under headings and in the hero. */
+interface Props {
+  class?: string;
+  width?: number;
+}
+const { class: className = '', width = 220 } = Astro.props;
+---
+
+<svg class:list={['pulse', className]} width={width} viewBox="0 0 220 32" fill="none" aria-hidden="true">
+  <path
+    pathLength="1"
+    d="M0 16h92l6-9 7 21 8-26 7 22 5-8h95"
+    stroke="currentColor"
+    stroke-width="1.6"
+    stroke-linecap="round"
+    stroke-linejoin="round"></path>
+  <circle cx="218" cy="16" r="2.4" fill="currentColor"></circle>
+</svg>
+
+<style>
+  .pulse { color: var(--gold); height: auto; max-width: 100%; }
+  [dir='rtl'] .pulse { transform: scaleX(-1); }
+  @media (prefers-reduced-motion: no-preference) {
+    .pulse path { stroke-dasharray: 1; stroke-dashoffset: 1; animation: pulse-draw 2.2s var(--ease) 0.3s forwards; }
+    .pulse circle { opacity: 0; animation: pulse-dot 0.4s ease 2.2s forwards; }
+  }
+  @keyframes pulse-draw { to { stroke-dashoffset: 0; } }
+  @keyframes pulse-dot { to { opacity: 1; } }
+</style>

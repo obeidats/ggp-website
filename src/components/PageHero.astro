@@ -1,0 +1,81 @@
+---
+import { Image } from 'astro:assets';
+import Icon from './Icon.astro';
+import PulseLine from './PulseLine.astro';
+import Wave from './Wave.astro';
+import { photos, type PhotoKey } from '@/data/photos';
+import { href, useT, type Lang } from '@/i18n/ui';
+
+interface Props {
+  lang: Lang;
+  title: string;
+  lead?: string;
+  photo: PhotoKey;
+  /** Breadcrumb trail after "Home": [{ label, path? }] — omit path for the current page. */
+  crumbs?: { label: string; path?: string }[];
+}
+const { lang, title, lead, photo, crumbs = [] } = Astro.props;
+const t = useT(lang);
+const p = photos[photo];
+---
+
+<section class="page-hero on-dark">
+  <Image src={p.src} alt="" widths={[768, 1280, 1920]} sizes="100vw" class="bg" loading="eager" fetchpriority="high" />
+  <div class="container inner">
+    <nav aria-label={lang === 'ar' ? 'مسار التنقل' : 'Breadcrumb'} class="crumbs">
+      <ol role="list">
+        <li><a href={href(lang)}>{t('nav.home')}</a></li>
+        {
+          crumbs.map((c) => (
+            <li>
+              <Icon name="ChevronRight" size={14} class="flip-rtl" />
+              {c.path !== undefined ? <a href={href(lang, c.path)}>{c.label}</a> : <span aria-current="page">{c.label}</span>}
+            </li>
+          ))
+        }
+      </ol>
+    </nav>
+    <h1>{title}</h1>
+    <PulseLine width={260} />
+    {lead && <p class="lead">{lead}</p>}
+    <slot />
+  </div>
+  <Wave fill="var(--cream)" />
+</section>
+
+<style>
+  .page-hero {
+    position: relative;
+    isolation: isolate;
+    display: grid;
+    align-content: end;
+    min-height: clamp(440px, 62vh, 580px);
+    padding-block-start: calc(var(--header-h) + 3rem);
+    color: var(--text-on-dark);
+    background: var(--ink);
+    overflow: hidden;
+  }
+  .page-hero :global(.bg) { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: -2; }
+  .page-hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background:
+      linear-gradient(0deg, rgba(10, 26, 43, 0.96) 0%, rgba(10, 26, 43, 0.55) 55%, rgba(10, 26, 43, 0.78) 100%),
+      linear-gradient(90deg, rgba(10, 26, 43, 0.85), transparent 75%);
+  }
+  [dir='rtl'] .page-hero::before {
+    background:
+      linear-gradient(0deg, rgba(10, 26, 43, 0.96) 0%, rgba(10, 26, 43, 0.55) 55%, rgba(10, 26, 43, 0.78) 100%),
+      linear-gradient(-90deg, rgba(10, 26, 43, 0.85), transparent 75%);
+  }
+  .inner { padding-block-end: 1.5rem; }
+  h1 { color: var(--text-on-dark); font-size: var(--step-5); max-width: 20ch; margin-block: 1rem 0.4rem; }
+  .lead { color: var(--text-on-dark-muted); margin-block-start: 1rem; }
+  .crumbs ol { display: flex; flex-wrap: wrap; align-items: center; gap: 0.4rem; font-size: var(--step--1); color: var(--text-on-dark-muted); }
+  .crumbs li { display: inline-flex; align-items: center; gap: 0.4rem; }
+  .crumbs a:hover { color: var(--gold-light); }
+  .crumbs [aria-current] { color: var(--gold-light); }
+  .page-hero :global(.wave) { margin-block-start: 2rem; margin-block-end: -1px; }
+</style>

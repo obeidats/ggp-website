@@ -1,0 +1,327 @@
+---
+import { Image } from 'astro:assets';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import PageHero from '@/components/PageHero.astro';
+import SectionHeading from '@/components/SectionHeading.astro';
+import Icon from '@/components/Icon.astro';
+import ProjectCard from '@/components/ProjectCard.astro';
+import CtaBand from '@/components/CtaBand.astro';
+import { photos } from '@/data/photos';
+import { portfolioSectors, portfolioTotals } from '@/data/sectors';
+import { getProjects, statusLabel } from '@/data/projects';
+import { formatNumber, href, langPaths, useT, type Lang } from '@/i18n/ui';
+
+export const getStaticPaths = langPaths;
+const lang = Astro.params.lang as Lang;
+const t = useT(lang);
+const projects = await getProjects();
+
+const copy = {
+  title: { en: 'Our Projects', ar: 'مشاريعنا' },
+  lead: {
+    en: 'Projects and contracts under GGP management that also provide skilled human resources across all sectors.',
+    ar: 'مشاريع وعقود تحت إدارة نبض الخليج العالمية، نوفّر لها أيضاً كوادر بشرية ماهرة في جميع القطاعات.',
+  },
+  desc: {
+    en: '31 projects and contracts worth OMR 23.7 million under GGP management across civil, power, telecom, utilities and water infrastructure in Oman.',
+    ar: '31 مشروعاً وعقداً بقيمة 23.7 مليون ريال عُماني تحت إدارة نبض الخليج العالمية في قطاعات البنية التحتية المدنية والكهرباء والاتصالات والمرافق والمياه في عُمان.',
+  },
+  summaryEyebrow: { en: 'Portfolio summary', ar: 'ملخص المحفظة' },
+  summaryTitle: { en: 'Projects by Sector', ar: 'المشاريع حسب القطاع' },
+  sector: { en: 'Sector', ar: 'القطاع' },
+  projects: { en: 'Projects', ar: 'المشاريع' },
+  completed: { en: 'Completed', ar: 'منجزة' },
+  ongoing: { en: 'Ongoing', ar: 'قيد التنفيذ' },
+  value: { en: 'Total value (OMR)', ar: 'القيمة الإجمالية (ريال عماني)' },
+  total: { en: 'Total', ar: 'الإجمالي' },
+  valueShort: { en: 'Portfolio value', ar: 'قيمة المحفظة' },
+  quality: {
+    en: 'All projects are delivered in line with our commitment to quality, safety and long-term value.',
+    ar: 'تُنفَّذ جميع المشاريع وفق التزامنا بالجودة والسلامة والقيمة طويلة الأمد.',
+  },
+  sectorsEyebrow: { en: 'Where we work', ar: 'مجالات عملنا' },
+  sectorsTitle: { en: 'Our Sectors in Detail', ar: 'قطاعاتنا بالتفصيل' },
+  shareOf: { en: 'of total value', ar: 'من القيمة الإجمالية' },
+  listEyebrow: { en: 'Project portfolio', ar: 'معرض المشاريع' },
+  listTitle: { en: 'Selected Projects', ar: 'مشاريع مختارة' },
+  all: { en: 'All', ar: 'الكل' },
+  filterSector: { en: 'Filter by sector', ar: 'التصفية حسب القطاع' },
+  filterStatus: { en: 'Filter by status', ar: 'التصفية حسب الحالة' },
+  noMatch: { en: 'No projects match this filter yet.', ar: 'لا توجد مشاريع مطابقة لهذا الاختيار حالياً.' },
+};
+const pct = (v: number) => Math.round((v / portfolioTotals.valueOMR) * 100);
+const sectorsWithProjects = portfolioSectors.filter((s) => projects.some((p) => p.data.sector === s.id));
+---
+
+<BaseLayout lang={lang} title={copy.title[lang]} description={copy.desc[lang]} overlayHeader>
+  <PageHero lang={lang} title={copy.title[lang]} lead={copy.lead[lang]} photo="craneSunset" crumbs={[{ label: t('nav.projects') }]} />
+
+  <!-- KPIs -->
+  <section class="kpi-wrap">
+    <div class="container">
+      <ul role="list" class="kpis">
+        <li data-reveal>
+          <Icon name="ClipboardList" size={26} />
+          <strong data-count={portfolioTotals.projects}>{portfolioTotals.projects}</strong>
+          <span class="kpi-label">{copy.projects[lang]}</span>
+        </li>
+        <li data-reveal style="--delay:.08s">
+          <Icon name="CircleCheck" size={26} />
+          <strong data-count={portfolioTotals.completed}>{portfolioTotals.completed}</strong>
+          <span class="kpi-label">{copy.completed[lang]}</span>
+        </li>
+        <li data-reveal style="--delay:.16s">
+          <Icon name="Clock3" size={26} />
+          <strong data-count={portfolioTotals.ongoing}>{portfolioTotals.ongoing}</strong>
+          <span class="kpi-label">{copy.ongoing[lang]}</span>
+        </li>
+        <li data-reveal style="--delay:.24s" class="wide">
+          <Icon name="Coins" size={26} />
+          <strong><small>{t('label.omr')}</small> <span data-count={portfolioTotals.valueOMR}>{formatNumber(portfolioTotals.valueOMR)}</span></strong>
+          <span class="kpi-label">{copy.valueShort[lang]}</span>
+        </li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- SUMMARY TABLE -->
+  <section class="section">
+    <div class="container">
+      <SectionHeading eyebrow={copy.summaryEyebrow[lang]} title={copy.summaryTitle[lang]} lead={copy.lead[lang]} />
+      <div class="table-wrap" data-reveal>
+        <table>
+          <caption class="visually-hidden">{copy.summaryTitle[lang]}</caption>
+          <thead>
+            <tr>
+              <th scope="col">{copy.sector[lang]}</th>
+              <th scope="col" class="num">{copy.projects[lang]}</th>
+              <th scope="col" class="num">{copy.completed[lang]}</th>
+              <th scope="col" class="num">{copy.ongoing[lang]}</th>
+              <th scope="col" class="num">{copy.value[lang]}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {
+              portfolioSectors.map((s) => (
+                <tr>
+                  <th scope="row">
+                    <span class="sector-cell">
+                      <span class="icon-badge icon-badge--sm"><Icon name={s.icon} /></span>
+                      <a href={`#${s.id}`}>{s.title[lang]}</a>
+                    </span>
+                  </th>
+                  <td class="num">{s.projects}</td>
+                  <td class="num">{s.completed}</td>
+                  <td class="num">{s.ongoing}</td>
+                  <td class="num"><span dir="ltr">{formatNumber(s.valueOMR)}/=</span></td>
+                </tr>
+              ))
+            }
+          </tbody>
+          <tfoot>
+            <tr>
+              <td><span class="sector-cell"><span class="icon-badge icon-badge--sm"><Icon name="Sigma" /></span>{copy.total[lang]}</span></td>
+              <td class="num">{portfolioTotals.projects}</td>
+              <td class="num">{portfolioTotals.completed}</td>
+              <td class="num">{portfolioTotals.ongoing}</td>
+              <td class="num"><span dir="ltr">{formatNumber(portfolioTotals.valueOMR)}/=</span></td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+      <p class="quality" data-reveal><Icon name="ShieldCheck" size={20} />{copy.quality[lang]}</p>
+    </div>
+  </section>
+
+  <!-- SECTOR CARDS -->
+  <section class="section section--white">
+    <div class="container">
+      <SectionHeading eyebrow={copy.sectorsEyebrow[lang]} title={copy.sectorsTitle[lang]} center />
+      <div class="sector-cards">
+        {
+          portfolioSectors.map((s, i) => {
+            const list = projects.filter((p) => p.data.sector === s.id);
+            return (
+              <article class="sector-card" id={s.id} data-reveal style={`--delay:${(i % 3) * 0.08}s`}>
+                <div class="sc-img">
+                  <Image src={photos[s.photo].src} alt="" widths={[400, 700]} sizes="(min-width: 960px) 30vw, 100vw" />
+                  <span class="icon-badge"><Icon name={s.icon} /></span>
+                </div>
+                <div class="sc-body">
+                  <h3>{s.title[lang]}</h3>
+                  <p class="sc-value">
+                    <span>{t('label.omr')}</span> {formatNumber(s.valueOMR)}
+                  </p>
+                  <p class="sc-share">{pct(s.valueOMR)}% {copy.shareOf[lang]}</p>
+                  <div class="sc-bar" role="img" aria-label={`${s.completed} ${copy.completed[lang]}, ${s.ongoing} ${copy.ongoing[lang]}`}>
+                    <span class="done" style={`flex:${s.completed}`} />
+                    <span class="going" style={`flex:${s.ongoing}`} />
+                  </div>
+                  <dl class="sc-stats">
+                    <div><dt>{copy.projects[lang]}</dt><dd>{s.projects}</dd></div>
+                    <div><dt><i class="dot done" />{copy.completed[lang]}</dt><dd>{s.completed}</dd></div>
+                    <div><dt><i class="dot going" />{copy.ongoing[lang]}</dt><dd>{s.ongoing}</dd></div>
+                  </dl>
+                  {list.length > 0 && (
+                    <ul role="list" class="sc-list">
+                      {list.map((p) => (
+                        <li>
+                          <a href={href(lang, `projects/${p.id}`)}>
+                            <Icon name="ArrowRight" size={16} class="flip-rtl" />
+                            {p.data.title[lang]}
+                          </a>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+              </article>
+            );
+          })
+        }
+      </div>
+    </div>
+  </section>
+
+  <!-- INDIVIDUAL PROJECTS (shown once project files are added in src/content/projects) -->
+  {
+    projects.length > 0 && (
+      <section class="section" data-filter-root>
+        <div class="container">
+          <SectionHeading eyebrow={copy.listEyebrow[lang]} title={copy.listTitle[lang]} />
+          <div class="filters" data-reveal>
+            <div role="group" aria-label={copy.filterSector[lang]} class="chips">
+              <button type="button" aria-pressed="true" data-filter="sector" data-value="all">{copy.all[lang]}</button>
+              {sectorsWithProjects.map((s) => (
+                <button type="button" aria-pressed="false" data-filter="sector" data-value={s.id}>
+                  {s.title[lang]}
+                </button>
+              ))}
+            </div>
+            <div role="group" aria-label={copy.filterStatus[lang]} class="chips">
+              <button type="button" aria-pressed="true" data-filter="status" data-value="all">{copy.all[lang]}</button>
+              {(['completed', 'ongoing'] as const).map((st) => (
+                <button type="button" aria-pressed="false" data-filter="status" data-value={st}>
+                  {statusLabel[st][lang]}
+                </button>
+              ))}
+            </div>
+          </div>
+          <ul role="list" class="grid grid-3 project-grid">
+            {projects.map((p) => (
+              <li data-item data-sector={p.data.sector} data-status={p.data.status}>
+                <ProjectCard lang={lang} project={p} />
+              </li>
+            ))}
+          </ul>
+          <p class="no-match" hidden data-empty>{copy.noMatch[lang]}</p>
+        </div>
+      </section>
+    )
+  }
+
+  <CtaBand lang={lang} />
+</BaseLayout>
+
+<script>
+  const root = document.querySelector<HTMLElement>('[data-filter-root]');
+  if (root) {
+    const state: Record<string, string> = { sector: 'all', status: 'all' };
+    const items = root.querySelectorAll<HTMLElement>('[data-item]');
+    const empty = root.querySelector<HTMLElement>('[data-empty]');
+    root.querySelectorAll<HTMLButtonElement>('[data-filter]').forEach((btn) =>
+      btn.addEventListener('click', () => {
+        const key = btn.dataset.filter!;
+        state[key] = btn.dataset.value!;
+        root.querySelectorAll<HTMLButtonElement>(`[data-filter="${key}"]`).forEach((b) => b.setAttribute('aria-pressed', String(b === btn)));
+        let shown = 0;
+        items.forEach((it) => {
+          const ok = (state.sector === 'all' || it.dataset.sector === state.sector) && (state.status === 'all' || it.dataset.status === state.status);
+          it.hidden = !ok;
+          if (ok) shown++;
+        });
+        if (empty) empty.hidden = shown > 0;
+      }),
+    );
+  }
+</script>
+
+<style>
+  .kpi-wrap { position: relative; z-index: 2; margin-block-start: calc(-1 * clamp(2.5rem, 5vw, 4.5rem)); }
+  .kpis {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 1fr));
+    gap: 1rem;
+  }
+  .kpis li {
+    display: grid;
+    gap: 0.2rem;
+    padding: 1.5rem;
+    border-radius: var(--radius-lg);
+    background: var(--white);
+    border: 1px solid var(--line);
+    box-shadow: var(--shadow);
+    color: var(--gold-deep);
+  }
+  .kpis li.wide { background: var(--ink); border-color: var(--gold); color: var(--gold-light); }
+  @media (min-width: 1000px) { .kpis { grid-template-columns: 1fr 1fr 1fr 1.6fr; } }
+  .kpis strong { font-family: var(--font-display); font-size: var(--step-4); line-height: 1.05; color: var(--ink); margin-block-start: 0.4rem; unicode-bidi: isolate; }
+  .kpis .wide strong { color: var(--text-on-dark); }
+  .kpis small { font-family: var(--font-body); font-size: 0.45em; font-weight: 800; color: var(--gold-light); }
+  .kpi-label { color: var(--text-muted); font-weight: 600; font-size: var(--step--1); }
+  .wide .kpi-label { color: var(--text-on-dark-muted); }
+  :root[lang='ar'] .kpi-label { font-size: var(--step-0); }
+
+  .sector-cell { display: inline-flex; align-items: center; gap: 0.9rem; font-weight: 700; color: var(--ink); }
+  .sector-cell a:hover { color: var(--gold-deep); text-decoration: underline; text-underline-offset: 3px; }
+  tbody th { font-weight: 700; }
+  td.num { font-weight: 600; }
+  tfoot .icon-badge { background: var(--ink); }
+  .quality { display: flex; gap: 0.6rem; align-items: center; margin-block-start: 1.25rem; color: var(--text-muted); font-size: var(--step--1); }
+  :root[lang='ar'] .quality { font-size: var(--step-0); }
+  .quality :global(svg) { color: var(--gold-deep); flex: none; }
+
+  .sector-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr)); gap: 1.5rem; }
+  .sector-card { display: flex; flex-direction: column; border-radius: var(--radius-lg); overflow: hidden; background: var(--cream); border: 1px solid var(--line); scroll-margin-top: calc(var(--header-h) + 1.5rem); }
+  .sector-card:target { outline: 3px solid var(--gold); outline-offset: 3px; }
+  .sc-img { position: relative; aspect-ratio: 16 / 9; }
+  .sc-img :global(img) { width: 100%; height: 100%; object-fit: cover; }
+  .sc-img .icon-badge { position: absolute; bottom: -32px; inset-inline-start: 1.5rem; }
+  .sc-body { display: grid; gap: 0.75rem; padding: 2.75rem 1.5rem 1.5rem; }
+  .sc-body h3 { font-size: var(--step-2); }
+  .sc-value { font-family: var(--font-display); font-size: var(--step-3); font-weight: 700; color: var(--ink); line-height: 1.1; unicode-bidi: isolate; }
+  .sc-value span { font-family: var(--font-body); font-size: 0.5em; color: var(--gold-deep); font-weight: 800; }
+  .sc-share { margin-block-start: -0.6rem; font-size: 0.85rem; color: var(--text-muted); font-weight: 600; }
+  .sc-bar { display: flex; gap: 2px; height: 10px; border-radius: 4px; overflow: hidden; }
+  .sc-bar span { min-width: 0; }
+  .done { background: var(--ink); }
+  .going { background: #a8781f; }
+  .sc-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.5rem; }
+  .sc-stats div { display: grid; }
+  .sc-stats dt { display: flex; align-items: center; gap: 0.35rem; font-size: 0.8rem; color: var(--text-muted); font-weight: 600; }
+  :root[lang='ar'] .sc-stats dt { font-size: 0.9rem; }
+  .sc-stats dd { margin: 0; font-size: var(--step-2); font-weight: 800; color: var(--ink); }
+  .dot { width: 10px; height: 10px; border-radius: 3px; display: inline-block; }
+  .sc-list { display: grid; gap: 0.35rem; padding-block-start: 0.75rem; border-block-start: 1px solid var(--line); }
+  .sc-list a { display: flex; gap: 0.5rem; align-items: center; font-weight: 600; font-size: var(--step--1); color: var(--ink); }
+  .sc-list a:hover { color: var(--gold-deep); }
+  .sc-list :global(svg) { color: var(--gold-deep); flex: none; }
+
+  .filters { display: grid; gap: 0.75rem; margin-block-end: 2rem; }
+  .chips { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+  .chips button {
+    min-height: 40px;
+    padding: 0.4rem 1rem;
+    border-radius: 999px;
+    border: 1px solid var(--line);
+    background: var(--white);
+    font-weight: 600;
+    font-size: var(--step--1);
+    color: var(--ink);
+    transition: background-color 0.2s, color 0.2s, border-color 0.2s;
+  }
+  .chips button:hover { border-color: var(--gold); }
+  .chips button[aria-pressed='true'] { background: var(--ink); color: var(--gold-light); border-color: var(--ink); }
+  .project-grid { list-style: none; padding: 0; }
+  .no-match { padding: 2rem; text-align: center; color: var(--text-muted); }
+</style>

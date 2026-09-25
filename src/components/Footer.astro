@@ -1,0 +1,84 @@
+---
+import Icon from './Icon.astro';
+import PulseLine from './PulseLine.astro';
+import { nav, site } from '@/config/site';
+import { services } from '@/data/services';
+import { href, tr, useT, type Lang } from '@/i18n/ui';
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+const t = useT(lang);
+const year = new Date().getFullYear();
+---
+
+<footer class="site-footer on-dark">
+  <div class="container footer-grid">
+    <div class="about">
+      <img src="/brand/logo-light.svg" alt={tr(site.name, lang)} width="289" height="83" class="footer-logo" loading="lazy" />
+      <p class="tagline">{tr(site.tagline, lang)}</p>
+      <PulseLine width={180} />
+      <div class="social">
+        <a href={`mailto:${site.email}`} aria-label={t('label.email')}><Icon name="Mail" size={20} /></a>
+        <a href={site.phoneHref} aria-label={t('cta.call')}><Icon name="Phone" size={20} /></a>
+      </div>
+    </div>
+
+    <nav aria-label={t('footer.quickLinks')}>
+      <h2>{t('footer.quickLinks')}</h2>
+      <ul role="list">
+        {nav.map((item) => <li><a href={href(lang, item.path)}>{t(item.key)}</a></li>)}
+      </ul>
+    </nav>
+
+    <nav aria-label={t('footer.services')}>
+      <h2>{t('footer.services')}</h2>
+      <ul role="list">
+        {services.map((s) => <li><a href={`${href(lang, 'services')}#${s.id}`}>{tr(s.title, lang)}</a></li>)}
+      </ul>
+    </nav>
+
+    <div>
+      <h2>{t('footer.contact')}</h2>
+      <ul role="list" class="contact">
+        <li><Icon name="Phone" size={18} /><a href={site.phoneHref} dir="ltr">{site.phone}</a></li>
+        <li><Icon name="Mail" size={18} /><a href={`mailto:${site.email}`}>{site.email}</a></li>
+        <li><Icon name="MapPin" size={18} /><address>{site.address[lang].map((line) => <span>{line}</span>)}</address></li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="container bottom">
+    <p>© {year} {tr(site.name, lang)}. {t('footer.rights')}</p>
+    <a href={href(lang, 'credits')}>{t('footer.credits')}</a>
+  </div>
+</footer>
+
+<style>
+  .site-footer {
+    position: relative;
+    background:
+      radial-gradient(ellipse 60% 80% at 100% 0%, rgba(195, 145, 45, 0.12), transparent 60%),
+      var(--ink);
+    color: var(--text-on-dark-muted);
+    padding-block: clamp(3.5rem, 3rem + 3vw, 5.5rem) 1.5rem;
+    border-block-start: 2px solid var(--gold);
+  }
+  .footer-grid { display: grid; gap: 2.5rem; grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 1fr)); }
+  @media (min-width: 1024px) { .footer-grid { grid-template-columns: 1.5fr 0.8fr 1.1fr 1.3fr; } }
+  .footer-logo { width: 230px; height: auto; }
+  .tagline { margin-block: 1rem 0.5rem; color: var(--text-on-dark); font-family: var(--font-display); font-size: var(--step-1); }
+  h2 { font-family: var(--font-body); font-size: var(--step--1); font-weight: 800; letter-spacing: 0.14em; text-transform: uppercase; color: var(--gold-light); margin-block-end: 1.1rem; }
+  :root[lang='ar'] h2 { letter-spacing: 0; font-size: var(--step-0); }
+  ul { list-style: none; padding: 0; display: grid; gap: 0.6rem; }
+  a { transition: color 0.2s; }
+  a:hover { color: var(--gold-light); }
+  .contact li { display: flex; gap: 0.7rem; align-items: flex-start; }
+  .contact :global(svg) { color: var(--gold); margin-block-start: 0.3rem; flex: none; }
+  address { font-style: normal; display: grid; }
+  .social { display: flex; gap: 0.6rem; margin-block-start: 1.25rem; }
+  .social a { width: 44px; height: 44px; display: grid; place-items: center; border-radius: 50%; border: 1px solid var(--line-dark); color: var(--gold-light); transition: background-color 0.25s, color 0.25s; }
+  .social a:hover { background: var(--gold); color: var(--ink); }
+  .bottom { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 1rem; margin-block-start: 3rem; padding-block-start: 1.5rem; border-block-start: 1px solid var(--line-dark); font-size: var(--step--1); }
+</style>

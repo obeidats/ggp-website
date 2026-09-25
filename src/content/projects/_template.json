@@ -1,0 +1,22 @@
+{
+  "title": { "en": "Project name in English", "ar": "اسم المشروع بالعربية" },
+  "sector": "electrical-power",
+  "status": "ongoing",
+  "summary": {
+    "en": "One or two sentences describing the project.",
+    "ar": "جملة أو جملتان تصفان المشروع."
+  },
+  "client": { "en": "Client name", "ar": "اسم العميل" },
+  "location": { "en": "Muscat, Oman", "ar": "مسقط، عُمان" },
+  "startYear": 2024,
+  "endYear": 2026,
+  "valueOMR": 1250000,
+  "scope": [
+    { "en": "Scope item one", "ar": "بند النطاق الأول" },
+    { "en": "Scope item two", "ar": "بند النطاق الثاني" }
+  ],
+  "cover": "../../assets/projects/example-cover.jpg",
+  "gallery": [],
+  "featured": false,
+  "order": 100
+}

@@ -1,0 +1,164 @@
+---
+import { Image } from 'astro:assets';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import PageHero from '@/components/PageHero.astro';
+import Icon from '@/components/Icon.astro';
+import ProjectCard from '@/components/ProjectCard.astro';
+import CtaBand from '@/components/CtaBand.astro';
+import { getPortfolioSector } from '@/data/sectors';
+import { getProjects, statusLabel, type Project } from '@/data/projects';
+import { formatNumber, href, langs, useT, type Lang } from '@/i18n/ui';
+
+export async function getStaticPaths() {
+  const projects = await getProjects();
+  return langs.flatMap((lang) => projects.map((project) => ({ params: { lang, slug: project.id }, props: { project, projects } })));
+}
+
+interface Props {
+  project: Project;
+  projects: Project[];
+}
+const { project, projects } = Astro.props;
+const lang = Astro.params.lang as Lang;
+const t = useT(lang);
+const d = project.data;
+const sector = getPortfolioSector(d.sector)!;
+const related = projects.filter((p) => p.data.sector === d.sector && p.id !== project.id).slice(0, 3);
+
+const copy = {
+  facts: { en: 'Project facts', ar: 'بيانات المشروع' },
+  sector: { en: 'Sector', ar: 'القطاع' },
+  status: { en: 'Status', ar: 'الحالة' },
+  client: { en: 'Client', ar: 'العميل' },
+  location: { en: 'Location', ar: 'الموقع' },
+  period: { en: 'Period', ar: 'الفترة' },
+  value: { en: 'Contract value', ar: 'قيمة العقد' },
+  overview: { en: 'Overview', ar: 'نظرة عامة' },
+  scope: { en: 'Scope of work', ar: 'نطاق العمل' },
+  gallery: { en: 'Gallery', ar: 'معرض الصور' },
+  related: { en: 'More in this sector', ar: 'مشاريع أخرى في هذا القطاع' },
+  back: { en: 'All projects', ar: 'جميع المشاريع' },
+};
+const period = [d.startYear, d.endYear].filter(Boolean).join(' – ');
+---
+
+<BaseLayout lang={lang} title={d.title[lang]} description={d.summary[lang]} overlayHeader ogImage={d.cover}>
+  <PageHero
+    lang={lang}
+    title={d.title[lang]}
+    lead={d.summary[lang]}
+    photo={sector.photo}
+    crumbs={[{ label: t('nav.projects'), path: 'projects' }, { label: d.title[lang] }]}
+  />
+
+  <section class="section">
+    <div class="container layout">
+      <div class="content">
+        {
+          d.cover && (
+            <div class="photo cover" data-reveal>
+              <Image src={d.cover} alt={d.title[lang]} widths={[600, 1000, 1400]} sizes="(min-width: 960px) 60vw, 100vw" />
+            </div>
+          )
+        }
+        <h2>{copy.overview[lang]}</h2>
+        <p class="lead">{d.summary[lang]}</p>
+
+        {
+          d.scope.length > 0 && (
+            <>
+              <h2>{copy.scope[lang]}</h2>
+              <ul role="list" class="scope">
+                {d.scope.map((s) => (
+                  <li>
+                    <Icon name="CircleCheck" size={20} />
+                    {s[lang]}
+                  </li>
+                ))}
+              </ul>
+            </>
+          )
+        }
+
+        {
+          d.gallery.length > 0 && (
+            <>
+              <h2>{copy.gallery[lang]}</h2>
+              <div class="gallery">
+                {d.gallery.map((img) => (
+                  <div class="photo">
+                    <Image src={img} alt="" widths={[400, 800]} sizes="(min-width: 960px) 30vw, 50vw" />
+                  </div>
+                ))}
+              </div>
+            </>
+          )
+        }
+        <a class="link-arrow back" href={href(lang, 'projects')}><Icon name="ArrowLeft" class="flip-rtl" />{copy.back[lang]}</a>
+      </div>
+
+      <aside class="facts" aria-label={copy.facts[lang]}>
+        <h2>{copy.facts[lang]}</h2>
+        <dl>
+          <div><dt><Icon name={sector.icon} size={18} />{copy.sector[lang]}</dt><dd><a href={`${href(lang, 'projects')}#${sector.id}`}>{sector.title[lang]}</a></dd></div>
+          <div><dt><Icon name="Activity" size={18} />{copy.status[lang]}</dt><dd><span class:list={['status', d.status]}>{statusLabel[d.status][lang]}</span></dd></div>
+          {d.client && <div><dt><Icon name="Building2" size={18} />{copy.client[lang]}</dt><dd>{d.client[lang]}</dd></div>}
+          {d.location && <div><dt><Icon name="MapPin" size={18} />{copy.location[lang]}</dt><dd>{d.location[lang]}</dd></div>}
+          {period && <div><dt><Icon name="CalendarDays" size={18} />{copy.period[lang]}</dt><dd dir="ltr">{period}</dd></div>}
+          {d.valueOMR !== undefined && <div><dt><Icon name="Coins" size={18} />{copy.value[lang]}</dt><dd class="value">{t('label.omr')} {formatNumber(d.valueOMR)}</dd></div>}
+        </dl>
+        <a class="btn" href={href(lang, 'contact')}>{t('cta.contact')}<Icon name="ArrowRight" class="flip-rtl" /></a>
+      </aside>
+    </div>
+  </section>
+
+  {
+    related.length > 0 && (
+      <section class="section section--white">
+        <div class="container">
+          <h2 class="related-title">{copy.related[lang]}</h2>
+          <ul role="list" class="grid grid-3">
+            {related.map((p) => (
+              <li>
+                <ProjectCard lang={lang} project={p} />
+              </li>
+            ))}
+          </ul>
+        </div>
+      </section>
+    )
+  }
+
+  <CtaBand lang={lang} />
+</BaseLayout>
+
+<style>
+  .layout { display: grid; gap: 3rem; align-items: start; }
+  @media (min-width: 960px) { .layout { grid-template-columns: 1fr 360px; } }
+  .content h2 { font-size: var(--step-3); margin-block: 2.5rem 1rem; }
+  .content h2:first-child, .cover + h2 { margin-block-start: 0; }
+  .cover { aspect-ratio: 16 / 9; margin-block-end: 2.5rem; }
+  .cover :global(img) { width: 100%; height: 100%; object-fit: cover; }
+  .scope { display: grid; gap: 0.6rem; }
+  .scope li { display: flex; gap: 0.75rem; align-items: flex-start; padding: 0.9rem 1rem; border-radius: var(--radius); background: var(--white); border: 1px solid var(--line); }
+  .scope :global(svg) { color: #a8781f; flex: none; margin-block-start: 0.2rem; }
+  .gallery { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 220px), 1fr)); gap: 1rem; }
+  .gallery .photo { aspect-ratio: 4 / 3; box-shadow: var(--shadow); }
+  .gallery :global(img) { width: 100%; height: 100%; object-fit: cover; }
+  .back { margin-block-start: 2.5rem; }
+
+  .facts { position: sticky; top: calc(var(--header-h) + 1.5rem); padding: 1.75rem; border-radius: var(--radius-lg); background: var(--ink); color: var(--text-on-dark-muted); border: 1px solid var(--gold); box-shadow: var(--shadow-lg); }
+  .facts h2 { color: var(--gold-light); font-size: var(--step-2); margin-block-end: 1rem; }
+  dl { display: grid; margin-block-end: 1.5rem; }
+  dl div { display: grid; gap: 0.2rem; padding-block: 0.85rem; border-block-end: 1px solid var(--line-dark); }
+  dt { display: flex; align-items: center; gap: 0.5rem; font-size: 0.8rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--gold-light); }
+  :root[lang='ar'] dt { letter-spacing: 0; font-size: 0.9rem; }
+  dd { margin: 0; color: var(--text-on-dark); font-weight: 600; }
+  dd a:hover { color: var(--gold-light); }
+  .value { font-family: var(--font-display); font-size: var(--step-2); font-weight: 700; unicode-bidi: isolate; }
+  .status { display: inline-block; padding: 0.15rem 0.7rem; border-radius: 999px; font-size: 0.85rem; font-weight: 800; }
+  .status.completed { background: var(--text-on-dark); color: var(--ink); }
+  .status.ongoing { background: var(--gold); color: var(--ink); }
+  .facts .btn { width: 100%; }
+  .related-title { font-size: var(--step-3); margin-block-end: 2rem; }
+</style>

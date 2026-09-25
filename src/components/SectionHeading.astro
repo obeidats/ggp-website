@@ -1,0 +1,33 @@
+---
+import PulseLine from './PulseLine.astro';
+
+interface Props {
+  eyebrow?: string;
+  title: string;
+  /** Part of the title to highlight in gold (must appear in `title`). */
+  accent?: string;
+  lead?: string;
+  center?: boolean;
+  as?: 'h1' | 'h2';
+}
+const { eyebrow, title, accent, lead, center = false, as: Tag = 'h2' } = Astro.props;
+
+const escape = (s: string) => s.replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]!);
+const titleHtml =
+  accent && title.includes(accent)
+    ? escape(title).replace(escape(accent), `<em>${escape(accent)}</em>`)
+    : escape(title);
+---
+
+<header class:list={['heading', { center }]} data-reveal>
+  {eyebrow && <p class="eyebrow">{eyebrow}</p>}
+  <Tag set:html={titleHtml} />
+  <PulseLine class={center ? 'pulse-center' : ''} />
+  {lead && <p class="lead">{lead}</p>}
+  <slot />
+</header>
+
+<style>
+  .heading :global(.pulse) { margin-block-start: 0.4rem; }
+  .heading :global(.pulse-center) { margin-inline: auto; }
+</style>

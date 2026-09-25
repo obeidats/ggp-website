@@ -1,0 +1,569 @@
+---
+import { Image } from 'astro:assets';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import Icon from '@/components/Icon.astro';
+import PulseLine from '@/components/PulseLine.astro';
+import SectionHeading from '@/components/SectionHeading.astro';
+import StatsBand from '@/components/StatsBand.astro';
+import GulfMap from '@/components/GulfMap.astro';
+import SectorValueChart from '@/components/SectorValueChart.astro';
+import CtaBand from '@/components/CtaBand.astro';
+import Wave from '@/components/Wave.astro';
+import HeroNetwork from '@/components/HeroNetwork.astro';
+import { site } from '@/config/site';
+import { photos } from '@/data/photos';
+import { coreServices, supportServices, serviceGroups } from '@/data/services';
+import { supportedSectors, portfolioTotals } from '@/data/sectors';
+import { gulf, pillars, valueChain, whoWeAre, whyPartner } from '@/data/company';
+import { formatNumber, href, langPaths, tr, useT, type Lang } from '@/i18n/ui';
+
+export const getStaticPaths = langPaths;
+const lang = Astro.params.lang as Lang;
+const t = useT(lang);
+const x = <T extends Record<Lang, string>>(v: T) => v[lang];
+
+const copy = {
+  metaTitle: tr(site.name, lang),
+  metaDesc: {
+    en: 'Global Gulf Pulse (GGP) is an Oman-based company for business development, commercial representation, regional partnerships and manpower & operational support across Oman and the Gulf.',
+    ar: 'نبض الخليج العالمية (GGP) شركة عُمانية متخصصة في تطوير الأعمال والتمثيل التجاري والشراكات الإقليمية والقوى العاملة والدعم التشغيلي في عُمان والخليج.',
+  },
+  heroKicker: site.location,
+  heroTitle1: { en: 'Global Gulf', ar: 'نبض الخليج' },
+  heroTitle2: { en: 'Pulse', ar: 'العالمية' },
+  heroServices: {
+    en: ['Business Development', 'Commercial Representation', 'Regional Partnerships'],
+    ar: ['تطوير الأعمال', 'التمثيل التجاري', 'الشراكات الإقليمية'],
+  },
+  aboutEyebrow: { en: 'Who we are', ar: 'من نحن' },
+  servicesEyebrow: { en: 'What we do', ar: 'ماذا نقدّم' },
+  servicesTitle: { en: 'What We Do', ar: 'ماذا نقدّم' },
+  servicesLead: {
+    en: 'Global Gulf Pulse provides a platform for business development, representation, partnerships and operational support.',
+    ar: 'تقدّم نبض الخليج العالمية منصة متكاملة لتطوير الأعمال والتمثيل التجاري والشراكات والدعم التشغيلي.',
+  },
+  sectorsEyebrow: { en: 'Industries', ar: 'القطاعات' },
+  sectorsTitle: { en: 'Sectors We Support', ar: 'القطاعات التي ندعمها' },
+  howEyebrow: { en: 'How we work', ar: 'كيف نعمل' },
+  gulfEyebrow: { en: 'Regional reach', ar: 'امتداد إقليمي' },
+  projectsEyebrow: { en: 'Our portfolio', ar: 'محفظتنا' },
+  projectsTitle: { en: 'Projects Under GGP Management', ar: 'مشاريع تحت إدارة نبض الخليج' },
+  projectsLead: {
+    en: 'Projects and contracts under GGP management that also provide skilled human resources across all sectors.',
+    ar: 'مشاريع وعقود تحت إدارة نبض الخليج العالمية، نوفّر لها أيضاً كوادر بشرية ماهرة في جميع القطاعات.',
+  },
+  chartTitle: { en: 'Portfolio value by sector', ar: 'قيمة المحفظة حسب القطاع' },
+  completed: { en: 'Completed', ar: 'منجزة' },
+  ongoing: { en: 'Ongoing', ar: 'قيد التنفيذ' },
+  total: { en: 'Total projects', ar: 'إجمالي المشاريع' },
+  quality: {
+    en: 'All projects are delivered in line with our commitment to quality, safety and long-term value.',
+    ar: 'تُنفَّذ جميع المشاريع وفق التزامنا بالجودة والسلامة والقيمة طويلة الأمد.',
+  },
+  whyEyebrow: { en: 'Why GGP', ar: 'لماذا نحن' },
+};
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Organization',
+  name: site.name.en,
+  alternateName: [site.name.ar, site.shortName],
+  url: site.url,
+  logo: `${site.url}/brand/logo.svg`,
+  foundingDate: String(site.founded),
+  email: site.email,
+  telephone: site.phone,
+  address: {
+    '@type': 'PostalAddress',
+    postOfficeBoxNumber: '767',
+    postalCode: '132',
+    streetAddress: 'Al Khoudh',
+    addressLocality: 'Seeb, Muscat',
+    addressCountry: 'OM',
+  },
+  areaServed: ['OM', 'SA', 'AE', 'QA', 'BH', 'KW'],
+};
+const pct = Math.round((portfolioTotals.completed / portfolioTotals.projects) * 100);
+---
+
+<BaseLayout lang={lang} title={copy.metaTitle} description={x(copy.metaDesc)} overlayHeader jsonLd={jsonLd}>
+  <!-- HERO -->
+  <section class="hero on-dark">
+    <Image src={photos.muttrahCorniche.src} alt="" widths={[768, 1280, 1920, 2400]} sizes="100vw" class="hero-bg" loading="eager" fetchpriority="high" />
+    <HeroNetwork />
+    <div class="container hero-inner">
+      <p class="eyebrow hero-kicker"><Icon name="MapPin" size={16} />{x(copy.heroKicker)}</p>
+      <h1>
+        <span>{x(copy.heroTitle1)}</span>
+        <span class="accent">{x(copy.heroTitle2)}</span>
+      </h1>
+      <PulseLine width={340} class="hero-pulse" />
+      <p class="hero-tagline">{tr(site.tagline, lang)}</p>
+      <ul role="list" class="hero-services">
+        {copy.heroServices[lang].map((s) => <li>{s}</li>)}
+      </ul>
+      <div class="btn-row">
+        <a class="btn" href={href(lang, 'services')}>{t('cta.services')}<Icon name="ArrowRight" class="flip-rtl" /></a>
+        <a class="btn btn--ghost" href={href(lang, 'contact')}>{t('cta.contact')}</a>
+      </div>
+    </div>
+    <Wave fill="var(--cream)" />
+  </section>
+
+  <StatsBand lang={lang} />
+
+  <!-- ABOUT INTRO -->
+  <section class="section">
+    <div class="container split split--wide-end">
+      <div class="about-photos" data-reveal>
+        <div class="photo photo--arc main-photo">
+          <Image src={photos.grandMosque.src} alt={photos.grandMosque.alt[lang]} widths={[480, 800, 1100]} sizes="(min-width: 960px) 40vw, 100vw" />
+        </div>
+        <div class="photo small-photo">
+          <Image src={photos.muttrahArchitecture.src} alt={photos.muttrahArchitecture.alt[lang]} widths={[360, 600]} sizes="(min-width: 960px) 18vw, 45vw" />
+        </div>
+        <div class="since">
+          <span>{lang === 'ar' ? 'منذ' : 'Since'}</span>
+          <strong>{site.founded}</strong>
+        </div>
+      </div>
+      <div class="stack" style="--stack:1.25rem">
+        <SectionHeading eyebrow={x(copy.aboutEyebrow)} title={x(pillars.title)} accent={lang === 'ar' ? 'وشريكٌ عملي.' : 'A Practical Partner.'} />
+        {whoWeAre.paragraphs.map((p) => <p class="muted" data-reveal>{p[lang]}</p>)}
+        <ul role="list" class="pillars">
+          {
+            pillars.items.map((p, i) => (
+              <li data-reveal style={`--delay:${i * 0.1}s`}>
+                <span class="icon-badge icon-badge--sm"><Icon name={p.icon} /></span>
+                <div>
+                  <h3>{p.title[lang]}</h3>
+                  <p>{p.text[lang]}</p>
+                </div>
+              </li>
+            ))
+          }
+        </ul>
+        <a class="link-arrow" href={href(lang, 'about')} data-reveal>{t('cta.about')}<Icon name="ArrowRight" class="flip-rtl" /></a>
+      </div>
+    </div>
+  </section>
+
+  <!-- SERVICES -->
+  <section class="section section--white">
+    <div class="container">
+      <SectionHeading eyebrow={x(copy.servicesEyebrow)} title={x(copy.servicesTitle)} lead={x(copy.servicesLead)} center />
+      <p class="group-label" data-reveal>{serviceGroups.core[lang]}</p>
+      <div class="grid grid-3 core-grid">
+        {
+          coreServices.map((s, i) => (
+            <a class="service-card" href={`${href(lang, 'services')}#${s.id}`} data-reveal style={`--delay:${i * 0.1}s`}>
+              <div class="service-img">
+                <Image src={photos[s.photo].src} alt="" widths={[400, 700]} sizes="(min-width: 960px) 30vw, 100vw" />
+                <span class="num">0{i + 1}</span>
+              </div>
+              <div class="service-body">
+                <span class="icon-badge"><Icon name={s.icon} /></span>
+                <h3>{s.title[lang]}</h3>
+                <p>{s.summary[lang]}</p>
+                <span class="link-arrow">{t('cta.learnMore')}<Icon name="ArrowRight" class="flip-rtl" /></span>
+              </div>
+            </a>
+          ))
+        }
+      </div>
+      <p class="group-label" data-reveal>{serviceGroups.support[lang]}</p>
+      <div class="grid grid-3">
+        {
+          supportServices.map((s, i) => (
+            <a class="card support-card" href={`${href(lang, 'services')}#${s.id}`} data-reveal style={`--delay:${i * 0.1}s`}>
+              <span class="icon-badge icon-badge--sm"><Icon name={s.icon} /></span>
+              <div>
+                <h3>{s.title[lang]}</h3>
+                <p>{s.summary[lang]}</p>
+              </div>
+            </a>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <!-- SECTORS -->
+  <section class="section">
+    <div class="container split split--wide-start">
+      <div>
+        <SectionHeading eyebrow={x(copy.sectorsEyebrow)} title={x(copy.sectorsTitle)} accent={lang === 'ar' ? 'ندعمها' : 'We Support'} />
+        <ul role="list" class="sectors">
+          {
+            supportedSectors.map((s, i) => (
+              <li data-reveal style={`--delay:${i * 0.05}s`}>
+                <span class="icon-badge"><Icon name={s.icon} /></span>
+                <span>{s.title[lang]}</span>
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+      <div class="mosaic" data-reveal>
+        <div class="photo"><Image src={photos.transmissionTower.src} alt={photos.transmissionTower.alt[lang]} width={600} /></div>
+        <div class="photo"><Image src={photos.buildingConstruction.src} alt={photos.buildingConstruction.alt[lang]} width={600} /></div>
+        <div class="photo"><Image src={photos.telecomAntennas.src} alt={photos.telecomAntennas.alt[lang]} width={600} /></div>
+        <div class="photo"><Image src={photos.industrialPlant.src} alt={photos.industrialPlant.alt[lang]} width={600} /></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- HOW WE WORK -->
+  <section class="section section--sand">
+    <div class="container">
+      <SectionHeading eyebrow={x(copy.howEyebrow)} title={x(valueChain.title)} accent={lang === 'ar' ? 'من خلال التواصل' : 'Through Connection'} center />
+      <ol role="list" class="process">
+        {
+          valueChain.steps.map((s, i) => (
+            <li data-reveal style={`--delay:${i * 0.12}s`}>
+              <span class="icon-badge icon-badge--lg"><Icon name={s.icon} /></span>
+              <span class="step">0{i + 1}</span>
+              <h3>{s.title[lang]}</h3>
+              <hr class="card-rule" />
+              <p>{s.text[lang]}</p>
+            </li>
+          ))
+        }
+      </ol>
+    </div>
+  </section>
+
+  <!-- CONNECTED TO THE GULF -->
+  <Wave fill="var(--ink)" bg="var(--sand)" />
+  <section class="section section--dark gulf">
+    <div class="container split">
+      <div>
+        <SectionHeading eyebrow={x(copy.gulfEyebrow)} title={x(gulf.title)} accent={lang === 'ar' ? 'بالخليج' : 'to the Gulf'} lead={x(gulf.text)} />
+        <p class="network-title" data-reveal>{x(gulf.networkTitle)}</p>
+        <ul role="list" class="network">
+          {
+            gulf.network.map((n, i) => (
+              <li data-reveal style={`--delay:${i * 0.06}s`}>
+                <span class="icon-badge icon-badge--sm"><Icon name={n.icon} /></span>
+                <div>
+                  <h3>{n.title[lang]}</h3>
+                  <p>{n.text[lang]}</p>
+                </div>
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+      <div data-reveal><GulfMap lang={lang} /></div>
+    </div>
+    <div class="container">
+      <ul role="list" class="gulf-features">
+        {
+          gulf.features.map((f) => (
+            <li data-reveal>
+              <Icon name={f.icon} size={28} />
+              <div>
+                <h3>{f.title[lang]}</h3>
+                <p>{f.text[lang]}</p>
+              </div>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </section>
+  <Wave fill="var(--cream)" bg="var(--ink)" />
+
+  <!-- PROJECTS -->
+  <section class="section">
+    <div class="container split split--wide-end">
+      <div class="stack" style="--stack:1.5rem">
+        <SectionHeading eyebrow={x(copy.projectsEyebrow)} title={x(copy.projectsTitle)} lead={x(copy.projectsLead)} />
+        <div class="project-kpis" data-reveal>
+          <div>
+            <strong data-count={portfolioTotals.projects}>{portfolioTotals.projects}</strong>
+            <span>{x(copy.total)}</span>
+          </div>
+          <div>
+            <strong data-count={portfolioTotals.completed}>{portfolioTotals.completed}</strong>
+            <span>{x(copy.completed)}</span>
+          </div>
+          <div>
+            <strong data-count={portfolioTotals.ongoing}>{portfolioTotals.ongoing}</strong>
+            <span>{x(copy.ongoing)}</span>
+          </div>
+        </div>
+        <div class="progress" data-reveal aria-hidden="true">
+          <span style={`--p:${pct}%`}></span>
+        </div>
+        <p class="quality" data-reveal><Icon name="ShieldCheck" size={20} />{x(copy.quality)}</p>
+        <a class="btn btn--dark" href={href(lang, 'projects')} data-reveal>{t('cta.projects')}<Icon name="ArrowRight" class="flip-rtl" /></a>
+      </div>
+      <div class="card chart-card">
+        <SectorValueChart lang={lang} title={x(copy.chartTitle)} />
+        <p class="chart-total">
+          <span>{lang === 'ar' ? 'الإجمالي' : 'Total'}</span>
+          <strong>{t('label.omr')} {formatNumber(portfolioTotals.valueOMR)}</strong>
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- WHY PARTNER -->
+  <section class="section section--white">
+    <div class="container">
+      <SectionHeading eyebrow={x(copy.whyEyebrow)} title={x(whyPartner.title)} accent="GGP" center />
+      <ol role="list" class="grid grid-3 why">
+        {
+          whyPartner.items.map((w, i) => (
+            <li class="card" data-reveal style={`--delay:${(i % 3) * 0.08}s`}>
+              <span class="why-num">0{i + 1}</span>
+              <span class="icon-badge"><Icon name={w.icon} /></span>
+              <h3>{w.title[lang]}</h3>
+              <hr class="card-rule" />
+              <p>{w.text[lang]}</p>
+            </li>
+          ))
+        }
+      </ol>
+    </div>
+  </section>
+
+  <CtaBand lang={lang} />
+</BaseLayout>
+
+<style>
+  /* ---------- Hero ---------- */
+  .hero {
+    position: relative;
+    isolation: isolate;
+    min-height: max(640px, 100svh);
+    display: grid;
+    align-content: end;
+    padding-block-start: calc(var(--header-h) + 3rem);
+    background: var(--ink);
+    color: var(--text-on-dark);
+    overflow: hidden;
+  }
+  .hero :global(.hero-bg) { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: -2; }
+  .hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background:
+      radial-gradient(ellipse 60% 55% at 78% 30%, rgba(0, 104, 117, 0.35), transparent 70%),
+      linear-gradient(0deg, rgba(10, 26, 43, 0.96) 8%, rgba(10, 26, 43, 0.55) 55%, rgba(10, 26, 43, 0.75) 100%),
+      linear-gradient(90deg, rgba(10, 26, 43, 0.92) 0%, rgba(10, 26, 43, 0.5) 60%, rgba(10, 26, 43, 0.3) 100%);
+  }
+  [dir='rtl'] .hero::before {
+    background:
+      radial-gradient(ellipse 60% 55% at 22% 30%, rgba(0, 104, 117, 0.35), transparent 70%),
+      linear-gradient(0deg, rgba(10, 26, 43, 0.96) 8%, rgba(10, 26, 43, 0.55) 55%, rgba(10, 26, 43, 0.75) 100%),
+      linear-gradient(-90deg, rgba(10, 26, 43, 0.92) 0%, rgba(10, 26, 43, 0.5) 60%, rgba(10, 26, 43, 0.3) 100%);
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .hero :global(.hero-bg) { animation: hero-zoom 18s ease-out both; }
+  }
+  @keyframes hero-zoom { from { transform: scale(1.08); } to { transform: scale(1); } }
+
+  .hero-inner { padding-block-end: clamp(5rem, 8vw, 8rem); }
+  .hero-kicker { color: var(--gold-light) !important; }
+  .hero-kicker::before { display: none; }
+  .hero h1 {
+    display: grid;
+    margin-block: 1.2rem 0.5rem;
+    font-size: clamp(3rem, 1.6rem + 6vw, 6.6rem);
+    line-height: 1;
+    color: var(--text-on-dark);
+    font-weight: 800;
+    letter-spacing: -0.035em;
+  }
+  :root[lang='ar'] .hero h1 { line-height: 1.25; font-size: clamp(2.8rem, 1.6rem + 6vw, 6.4rem); }
+  .hero h1 .accent {
+    background: linear-gradient(100deg, var(--gold-light), var(--gold) 55%, #a8781f);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  .hero :global(.hero-pulse) { margin-block: 0.5rem 1rem; }
+  .hero-tagline { font-size: var(--step-2); font-weight: 500; color: var(--text-on-dark); letter-spacing: -0.01em; }
+  .hero-services { display: flex; flex-wrap: wrap; gap: 0.4rem 1.2rem; margin-block: 1rem 2.2rem; color: var(--text-on-dark-muted); font-weight: 600; font-size: var(--step--1); }
+  :root[lang='ar'] .hero-services { font-size: var(--step-0); }
+  .hero-services li { display: inline-flex; align-items: center; gap: 1.2rem; }
+  .hero-services li + li::before { content: ''; width: 1px; height: 1em; background: var(--gold); }
+  @media (max-width: 640px) {
+    .hero-services { flex-direction: column; gap: 0.3rem; }
+    .hero-services li::before, .hero-services li + li::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--gold); }
+    .hero-services li { gap: 0.6rem; }
+  }
+  .hero :global(.wave) { position: absolute; inset-inline: 0; bottom: -1px; }
+
+  /* ---------- About ---------- */
+  .about-photos { position: relative; padding-block-end: 3rem; padding-inline-end: 3rem; }
+  .main-photo { aspect-ratio: 4 / 5; }
+  .small-photo { position: absolute; inset-inline-end: 0; bottom: 0; width: 45%; aspect-ratio: 1; border: 6px solid var(--cream); }
+  .since {
+    position: absolute;
+    top: 2rem;
+    inset-inline-end: 0;
+    display: grid;
+    padding: 1rem 1.3rem;
+    border-radius: var(--radius);
+    background: var(--ink);
+    color: var(--text-on-dark-muted);
+    box-shadow: var(--shadow-lg);
+    text-align: center;
+    border: 1px solid var(--line-dark);
+  }
+  .since strong { font-family: var(--font-display); font-size: var(--step-3); color: var(--gold-light); line-height: 1; }
+  .pillars { display: grid; gap: 1rem; margin-block-start: 1.75rem !important; }
+  .pillars li { display: flex; gap: 1rem; align-items: center; padding: 1rem 1.2rem; border-radius: var(--radius); background: var(--white); border: 1px solid var(--line); }
+  .pillars h3 { font-size: var(--step-1); }
+  .pillars p { color: var(--text-muted); font-size: var(--step--1); }
+  :root[lang='ar'] .pillars p { font-size: var(--step-0); }
+
+  /* ---------- Services ---------- */
+  .group-label {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-block: 3rem 1.5rem;
+    font-weight: 800;
+    font-size: var(--step--1);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--ink);
+  }
+  :root[lang='ar'] .group-label { letter-spacing: 0; font-size: var(--step-1); }
+  .group-label::after { content: ''; flex: 1; height: 1px; background: var(--line); }
+  .service-card {
+    display: flex;
+    flex-direction: column;
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    background: var(--cream);
+    border: 1px solid var(--line);
+    transition: transform 0.4s var(--ease), box-shadow 0.4s var(--ease);
+  }
+  .service-card:hover { transform: translateY(-6px); box-shadow: var(--shadow-lg); }
+  .service-img { position: relative; aspect-ratio: 16 / 10; overflow: hidden; }
+  .service-img :global(img) { width: 100%; height: 100%; object-fit: cover; transition: transform 1s var(--ease); }
+  .service-card:hover .service-img :global(img) { transform: scale(1.06); }
+  .num {
+    position: absolute;
+    top: 1rem;
+    inset-inline-start: 1rem;
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 2.4rem;
+    line-height: 1;
+    color: var(--white);
+    text-shadow: 0 2px 12px rgba(0, 0, 0, 0.4);
+  }
+  .service-body { position: relative; display: grid; gap: 0.7rem; padding: 0 1.75rem 1.75rem; flex: 1; align-content: start; }
+  .service-body .icon-badge { margin-block-start: -32px; }
+  .service-body h3 { font-size: var(--step-2); }
+  .service-body p { color: var(--text-muted); }
+  .service-body .link-arrow { margin-block-start: auto; padding-block-start: 0.5rem; }
+  .support-card { display: flex; gap: 1.1rem; align-items: flex-start; }
+  .support-card h3 { font-size: var(--step-1); margin-block-end: 0.3rem; }
+
+  /* ---------- Sectors ---------- */
+  .sectors { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(calc(50% - 0.5rem), 200px), 1fr)); gap: 0.9rem; }
+  @media (max-width: 480px) { .sectors li { flex-direction: column; text-align: center; font-size: 0.9rem; } }
+  .sectors li {
+    display: flex;
+    align-items: center;
+    gap: 0.9rem;
+    padding: 0.85rem 1rem;
+    border-radius: var(--radius);
+    background: var(--white);
+    border: 1px solid var(--line);
+    font-weight: 700;
+    color: var(--ink);
+    transition: border-color 0.3s, transform 0.3s var(--ease);
+  }
+  .sectors li:hover { border-color: var(--gold); transform: translateY(-3px); }
+  .sectors .icon-badge { --size: 50px; }
+  .mosaic { display: grid; grid-template-columns: 1fr 1fr; gap: 0.9rem; }
+  .mosaic .photo { aspect-ratio: 4 / 5; border-radius: var(--radius); box-shadow: var(--shadow); }
+  .mosaic .photo:nth-child(odd) { transform: translateY(1.5rem); }
+  .mosaic :global(img) { width: 100%; height: 100%; object-fit: cover; }
+
+  /* ---------- Process ---------- */
+  .process { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 230px), 1fr)); gap: 1.5rem; counter-reset: step; }
+  .process li {
+    position: relative;
+    display: grid;
+    justify-items: center;
+    align-content: start;
+    text-align: center;
+    padding: 3.6rem 1.5rem 1.8rem;
+    margin-block-start: 42px;
+    border-radius: var(--radius-lg);
+    background: var(--white);
+    border: 1px solid var(--line);
+    box-shadow: var(--shadow-sm);
+  }
+  .process .icon-badge { position: absolute; top: -42px; }
+  .step { font-weight: 800; font-size: 0.8rem; letter-spacing: 0.18em; color: var(--gold-deep); }
+  .process h3 { font-family: var(--font-body); font-size: var(--step-1); font-weight: 800; letter-spacing: 0.04em; text-transform: uppercase; margin-block-start: 0.3rem; }
+  :root[lang='ar'] .process h3 { text-transform: none; letter-spacing: 0; font-family: var(--font-display); }
+  .process p { color: var(--text-muted); }
+
+  /* ---------- Gulf ---------- */
+  .gulf { background: radial-gradient(ellipse 50% 60% at 80% 40%, rgba(0, 104, 117, 0.25), transparent 70%), var(--ink); }
+  .network-title { margin-block: 2rem 1rem; font-weight: 800; letter-spacing: 0.14em; text-transform: uppercase; font-size: var(--step--1); color: var(--gold-light); }
+  :root[lang='ar'] .network-title { letter-spacing: 0; font-size: var(--step-0); }
+  .network { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr)); gap: 1.2rem 1.5rem; }
+  .network li { display: flex; gap: 0.9rem; align-items: flex-start; }
+  .network h3 { font-family: var(--font-body); font-size: var(--step-0); font-weight: 800; color: var(--text-on-dark); }
+  .network p { font-size: var(--step--1); color: var(--text-on-dark-muted); line-height: 1.55; }
+  :root[lang='ar'] .network p { font-size: var(--step-0); }
+  .gulf-features {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr));
+    gap: 1.5rem;
+    margin-block-start: clamp(2.5rem, 4vw, 4rem);
+    padding-block-start: 2.5rem;
+    border-block-start: 1px solid var(--line-dark);
+  }
+  .gulf-features li { display: flex; gap: 1rem; color: var(--gold-light); }
+  .gulf-features h3 { font-family: var(--font-body); font-size: var(--step--1); font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-on-dark); }
+  :root[lang='ar'] .gulf-features h3 { letter-spacing: 0; font-size: var(--step-0); }
+  .gulf-features p { font-size: var(--step--1); color: var(--text-on-dark-muted); }
+  :root[lang='ar'] .gulf-features p { font-size: var(--step-0); }
+
+  /* ---------- Projects ---------- */
+  .project-kpis { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; }
+  .project-kpis div { display: grid; padding: 1rem 1.2rem; border-radius: var(--radius); background: var(--white); border: 1px solid var(--line); }
+  .project-kpis strong { font-family: var(--font-display); font-size: var(--step-4); line-height: 1; color: var(--ink); }
+  .project-kpis span { font-size: var(--step--1); color: var(--text-muted); font-weight: 600; }
+  :root[lang='ar'] .project-kpis span { font-size: var(--step-0); }
+  .progress { height: 8px; border-radius: 99px; background: var(--sand); overflow: hidden; }
+  .progress span { display: block; height: 100%; width: var(--p); background: var(--ink); border-radius: 99px; }
+  .quality { display: flex; gap: 0.6rem; align-items: flex-start; color: var(--text-muted); font-size: var(--step--1); }
+  :root[lang='ar'] .quality { font-size: var(--step-0); }
+  .quality :global(svg) { color: var(--gold-deep); flex: none; margin-block-start: 0.2rem; }
+  .chart-card:hover { transform: none; }
+  .chart-total { display: flex; justify-content: space-between; align-items: baseline; margin-block-start: 1rem; padding: 1rem 0.6rem 0; border-block-start: 1px solid var(--line); font-weight: 700; color: var(--ink); }
+  .chart-total strong { font-family: var(--font-display); font-size: var(--step-3); color: var(--gold-deep); unicode-bidi: isolate; }
+
+  /* ---------- Why ---------- */
+  .why { grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr)); }
+  .why .card { display: grid; justify-items: center; align-content: start; text-align: center; padding-block-start: 2.5rem; }
+  .why-num {
+    position: absolute;
+    top: 0;
+    inset-inline-start: 1.25rem;
+    padding: 0.35rem 0.7rem;
+    border-radius: 0 0 10px 10px;
+    background: #a8781f;
+    color: var(--white);
+    font-weight: 800;
+    font-size: 0.85rem;
+  }
+  .why h3 { margin-block-start: 1rem; font-size: var(--step-1) !important; font-family: var(--font-body); font-weight: 800; }
+  :root[lang='ar'] .why h3 { font-family: var(--font-display); }
+</style>

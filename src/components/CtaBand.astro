@@ -1,0 +1,59 @@
+---
+import Icon from './Icon.astro';
+import PulseLine from './PulseLine.astro';
+import { site } from '@/config/site';
+import { href, useT, type L, type Lang } from '@/i18n/ui';
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+const t = useT(lang);
+const copy = {
+  eyebrow: { en: 'Let’s connect', ar: 'لنتواصل' },
+  title: { en: 'Opportunity starts with a conversation.', ar: 'كل فرصة تبدأ بحوار.' },
+  text: {
+    en: 'Tell us about your plans in Oman and the Gulf. We will help you find the right connections and a practical way forward.',
+    ar: 'حدّثنا عن خططكم في عُمان والخليج، وسنساعدكم في الوصول إلى العلاقات المناسبة ومسار عملي للمضي قدماً.',
+  },
+} satisfies Record<string, L>;
+---
+
+<section class="section--tight">
+  <div class="container">
+    <div class="cta on-dark" data-reveal>
+      <div class="copy">
+        <p class="eyebrow">{copy.eyebrow[lang]}</p>
+        <h2>{copy.title[lang]}</h2>
+        <PulseLine width={200} />
+        <p>{copy.text[lang]}</p>
+      </div>
+      <div class="btn-row">
+        <a class="btn" href={href(lang, 'contact')}>{t('cta.contact')}<Icon name="ArrowRight" class="flip-rtl" /></a>
+        <a class="btn btn--ghost" href={site.phoneHref}><Icon name="Phone" /><span dir="ltr">{site.phone}</span></a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .cta {
+    position: relative;
+    overflow: hidden;
+    display: grid;
+    gap: 2rem;
+    align-items: center;
+    padding: clamp(2rem, 1.5rem + 3vw, 4rem);
+    border-radius: var(--radius-lg);
+    background:
+      radial-gradient(circle at 100% 0%, rgba(195, 145, 45, 0.28), transparent 45%),
+      radial-gradient(circle at 0% 100%, rgba(0, 104, 117, 0.35), transparent 50%),
+      var(--ink);
+    color: var(--text-on-dark-muted);
+    box-shadow: var(--shadow-lg);
+    border: 1px solid var(--line-dark);
+  }
+  @media (min-width: 900px) { .cta { grid-template-columns: 1.4fr auto; } }
+  h2 { color: var(--text-on-dark); font-size: var(--step-4); margin-block: 0.6rem 0.2rem; max-width: 18ch; }
+  .copy p:last-child { margin-block-start: 0.8rem; max-width: 56ch; }
+</style>

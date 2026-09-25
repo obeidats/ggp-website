@@ -1,0 +1,186 @@
+---
+/**
+ * Contact form. Posts to PUBLIC_FORM_ENDPOINT (e.g. Formspree), which emails
+ * submissions to info@ggp-oman.com. Without an endpoint it opens the visitor's
+ * email app with the message pre-filled, so the form always works.
+ */
+import Icon from './Icon.astro';
+import { site } from '@/config/site';
+import { services } from '@/data/services';
+import type { Lang } from '@/i18n/ui';
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+const c = {
+  name: { en: 'Full name', ar: 'الاسم الكامل' },
+  company: { en: 'Company', ar: 'الشركة' },
+  email: { en: 'Email', ar: 'البريد الإلكتروني' },
+  phone: { en: 'Phone', ar: 'رقم الهاتف' },
+  interest: { en: 'I’m interested in', ar: 'أرغب في' },
+  choose: { en: 'Select a service (optional)', ar: 'اختر خدمة (اختياري)' },
+  general: { en: 'General enquiry', ar: 'استفسار عام' },
+  message: { en: 'Message', ar: 'الرسالة' },
+  placeholder: { en: 'Tell us briefly about your plans or needs…', ar: 'حدّثنا باختصار عن خططكم أو احتياجاتكم…' },
+  required: { en: 'required', ar: 'مطلوب' },
+  send: { en: 'Send message', ar: 'إرسال الرسالة' },
+  sending: { en: 'Sending…', ar: 'جارٍ الإرسال…' },
+  ok: { en: 'Thank you — your message has been sent. We will get back to you shortly.', ar: 'شكراً لكم، تم إرسال رسالتكم وسنتواصل معكم قريباً.' },
+  fail: { en: 'Sorry, the message could not be sent. Please email us directly at', ar: 'عذراً، تعذّر إرسال الرسالة. يرجى مراسلتنا مباشرة على' },
+  mailto: { en: 'Your email app will open with the message ready to send.', ar: 'سيُفتح تطبيق البريد لديكم والرسالة جاهزة للإرسال.' },
+  privacy: { en: 'We only use your details to reply to your enquiry.', ar: 'نستخدم بياناتكم للرد على استفساركم فقط.' },
+  subject: { en: 'Website enquiry', ar: 'استفسار من الموقع' },
+};
+---
+
+<form
+  class="contact-form"
+  action={site.formEndpoint || `mailto:${site.email}`}
+  method="post"
+  data-contact-form
+  data-endpoint={site.formEndpoint}
+  data-email={site.email}
+  data-subject={c.subject[lang]}
+  data-msg-sending={c.sending[lang]}
+  data-msg-ok={c.ok[lang]}
+  data-msg-fail={c.fail[lang]}
+  data-msg-mailto={c.mailto[lang]}
+  novalidate>
+  <input type="hidden" name="_subject" value={`${c.subject[lang]} — ${site.shortName}`} />
+  <input type="hidden" name="language" value={lang} />
+  <!-- spam trap: real people never see or fill this -->
+  <div class="hp" aria-hidden="true">
+    <label>Leave empty <input type="text" name="_gotcha" tabindex="-1" autocomplete="off" /></label>
+  </div>
+
+  <div class="row">
+    <div class="field">
+      <label for="cf-name">{c.name[lang]} <span class="req">*</span></label>
+      <input id="cf-name" name="name" type="text" autocomplete="name" required minlength="2" />
+    </div>
+    <div class="field">
+      <label for="cf-company">{c.company[lang]}</label>
+      <input id="cf-company" name="company" type="text" autocomplete="organization" />
+    </div>
+  </div>
+  <div class="row">
+    <div class="field">
+      <label for="cf-email">{c.email[lang]} <span class="req">*</span></label>
+      <input id="cf-email" name="email" type="email" autocomplete="email" required dir="ltr" />
+    </div>
+    <div class="field">
+      <label for="cf-phone">{c.phone[lang]}</label>
+      <input id="cf-phone" name="phone" type="tel" autocomplete="tel" dir="ltr" />
+    </div>
+  </div>
+  <div class="field">
+    <label for="cf-interest">{c.interest[lang]}</label>
+    <select id="cf-interest" name="interest">
+      <option value="">{c.choose[lang]}</option>
+      {services.map((s) => <option value={s.title.en}>{s.title[lang]}</option>)}
+      <option value="General enquiry">{c.general[lang]}</option>
+    </select>
+  </div>
+  <div class="field">
+    <label for="cf-message">{c.message[lang]} <span class="req">*</span></label>
+    <textarea id="cf-message" name="message" rows="6" required minlength="10" placeholder={c.placeholder[lang]}></textarea>
+  </div>
+
+  <div class="submit-row">
+    <button class="btn btn--dark" type="submit"><span data-label>{c.send[lang]}</span><Icon name="Send" class="flip-rtl" /></button>
+    <p class="privacy"><Icon name="Lock" size={14} />{c.privacy[lang]}</p>
+  </div>
+  <p class="status" role="status" aria-live="polite" data-status hidden></p>
+</form>
+
+<script>
+  document.querySelectorAll<HTMLFormElement>('[data-contact-form]').forEach((form) => {
+    const status = form.querySelector<HTMLElement>('[data-status]')!;
+    const label = form.querySelector<HTMLElement>('[data-label]')!;
+    const button = form.querySelector<HTMLButtonElement>('button[type="submit"]')!;
+    const d = form.dataset;
+
+    const show = (text: string, kind: 'ok' | 'error' | 'info', link = false) => {
+      status.hidden = false;
+      status.className = `status ${kind}`;
+      status.textContent = text;
+      if (link) {
+        const a = document.createElement('a');
+        a.href = `mailto:${d.email}`;
+        a.textContent = ` ${d.email}`;
+        status.append(a);
+      }
+    };
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if (!form.checkValidity()) {
+        form.classList.add('validated');
+        form.querySelector<HTMLElement>(':invalid')?.focus();
+        return;
+      }
+      const data = new FormData(form);
+      if (data.get('_gotcha')) return; // bot
+
+      if (!d.endpoint) {
+        const body = ['name', 'company', 'email', 'phone', 'interest', 'message']
+          .map((k) => [k, String(data.get(k) ?? '').trim()])
+          .filter(([, v]) => v)
+          .map(([k, v]) => `${k[0]!.toUpperCase()}${k.slice(1)}: ${v}`)
+          .join('\n');
+        window.location.href = `mailto:${d.email}?subject=${encodeURIComponent(d.subject ?? '')}&body=${encodeURIComponent(body)}`;
+        show(d.msgMailto ?? '', 'info');
+        return;
+      }
+
+      const original = label.textContent;
+      button.disabled = true;
+      label.textContent = d.msgSending ?? '';
+      try {
+        const res = await fetch(d.endpoint, { method: 'POST', body: data, headers: { Accept: 'application/json' } });
+        if (!res.ok) throw new Error(String(res.status));
+        form.reset();
+        form.classList.remove('validated');
+        show(d.msgOk ?? '', 'ok');
+      } catch {
+        show(d.msgFail ?? '', 'error', true);
+      } finally {
+        button.disabled = false;
+        label.textContent = original;
+      }
+    });
+  });
+</script>
+
+<style>
+  .contact-form { position: relative; display: grid; gap: 1.1rem; }
+  .row { display: grid; gap: 1.1rem; grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr)); }
+  .field { display: grid; gap: 0.4rem; }
+  label { font-weight: 700; font-size: var(--step--1); color: var(--ink); }
+  :root[lang='ar'] label { font-size: var(--step-0); }
+  .req { color: #b3261e; }
+  input, select, textarea {
+    width: 100%;
+    min-height: 50px;
+    padding: 0.75rem 1rem;
+    border-radius: 12px;
+    border: 1.5px solid var(--line);
+    background: var(--cream);
+    color: var(--text);
+    transition: border-color 0.2s, box-shadow 0.2s, background-color 0.2s;
+  }
+  [dir='rtl'] input[dir='ltr'] { text-align: right; }
+  textarea { resize: vertical; min-height: 150px; }
+  input:focus, select:focus, textarea:focus { outline: none; border-color: var(--gold); background: var(--white); box-shadow: 0 0 0 4px rgba(195, 145, 45, 0.18); }
+  .validated :invalid { border-color: #b3261e; background: #fdf3f2; }
+  .submit-row { display: flex; flex-wrap: wrap; align-items: center; gap: 1rem 1.5rem; margin-block-start: 0.4rem; }
+  .submit-row .btn[disabled] { opacity: 0.7; cursor: progress; }
+  .privacy { display: flex; align-items: center; gap: 0.4rem; font-size: 0.85rem; color: var(--text-muted); }
+  .status { padding: 1rem 1.2rem; border-radius: 12px; font-weight: 600; }
+  .status.ok { background: #e7f5ec; color: #14532d; border: 1px solid #a7d7b8; }
+  .status.error { background: #fdf3f2; color: #8c1d18; border: 1px solid #f0b7b2; }
+  .status.info { background: var(--sand); color: var(--ink); border: 1px solid var(--line); }
+  .status :global(a) { text-decoration: underline; }
+  .hp { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+</style>

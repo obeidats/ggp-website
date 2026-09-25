@@ -1,0 +1,92 @@
+---
+/** "Our Partnership Ecosystem": five nodes on a cycle around the GGP emblem. */
+import Icon from './Icon.astro';
+import { ecosystem } from '@/data/company';
+import type { Lang } from '@/i18n/ui';
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+const n = ecosystem.nodes.length;
+const R = 40; // radius in % of the box
+const nodes = ecosystem.nodes.map((node, i) => {
+  const a = (-90 + (360 / n) * i) * (Math.PI / 180);
+  return { ...node, x: 50 + R * Math.cos(a), y: 50 + R * Math.sin(a) };
+});
+// Arc segments between nodes (in a 100x100 viewBox), leaving a gap around each node
+const gap = 17; // degrees
+const arcs = nodes.map((_, i) => {
+  const a1 = (-90 + (360 / n) * i + gap) * (Math.PI / 180);
+  const a2 = (-90 + (360 / n) * (i + 1) - gap) * (Math.PI / 180);
+  const p = (a: number) => `${(50 + R * Math.cos(a)).toFixed(2)} ${(50 + R * Math.sin(a)).toFixed(2)}`;
+  return `M${p(a1)}A${R} ${R} 0 0 1 ${p(a2)}`;
+});
+---
+
+<div class="eco" dir="ltr">
+  <svg viewBox="0 0 100 100" aria-hidden="true">
+    <defs>
+      <marker id="eco-arrow" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="4" markerHeight="4" orient="auto-start-reverse">
+        <path d="M0 0L10 5L0 10z" fill="currentColor"></path>
+      </marker>
+    </defs>
+    <circle cx="50" cy="50" r="27" class="dotted"></circle>
+    {arcs.map((d) => <path d={d} class="arc" marker-end="url(#eco-arrow)" />)}
+  </svg>
+  <div class="center">
+    <img src="/brand/logo.svg" alt="" width="289" height="83" loading="lazy" />
+  </div>
+  <ol role="list" dir={lang === 'ar' ? 'rtl' : 'ltr'}>
+    {
+      nodes.map((node) => (
+        <li style={`--x:${node.x}%;--y:${node.y}%`}>
+          <span class="icon-badge">
+            <Icon name={node.icon} />
+          </span>
+          <span class="label">{node.title[lang]}</span>
+        </li>
+      ))
+    }
+  </ol>
+</div>
+
+<style>
+  .eco { position: relative; width: min(100%, 540px); aspect-ratio: 1; margin-inline: auto; color: var(--ink); }
+  svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .arc { fill: none; stroke: currentColor; stroke-width: 0.7; }
+  .dotted { fill: var(--white); stroke: var(--gold); stroke-width: 0.35; stroke-dasharray: 0.6 1.2; }
+  .center { position: absolute; inset: 29%; display: grid; place-items: center; border-radius: 50%; background: var(--white); box-shadow: var(--shadow), inset 0 0 0 2px var(--gold-light); }
+  .center img { width: 78%; height: auto; }
+  ol { position: absolute; inset: 0; }
+  li {
+    position: absolute;
+    left: var(--x);
+    top: var(--y);
+    translate: -50% -50%;
+    display: grid;
+    justify-items: center;
+    gap: 0.4rem;
+    width: 9.5rem;
+    text-align: center;
+  }
+  .label {
+    padding: 0.3rem 0.7rem;
+    border-radius: 8px;
+    background: var(--white);
+    border: 1px solid var(--gold-light);
+    box-shadow: var(--shadow-sm);
+    font-size: 0.78rem;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    line-height: 1.3;
+  }
+  :root[lang='ar'] .label { text-transform: none; letter-spacing: 0; font-size: 0.9rem; }
+  @media (max-width: 520px) {
+    li { width: 7rem; }
+    li .icon-badge { --size: 48px; }
+    .label { font-size: 0.68rem; padding: 0.25rem 0.45rem; }
+    :root[lang='ar'] .label { font-size: 0.78rem; }
+  }
+</style>

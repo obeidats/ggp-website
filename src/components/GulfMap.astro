@@ -1,0 +1,264 @@
+---
+/**
+ * Interactive Gulf map built from the logo's own outline.
+ * Muscat is the hub; hover, focus or tap a market (on the map or in the chip row)
+ * to highlight its route and show its details. Works without JS as a static map.
+ */
+import Icon from './Icon.astro';
+import { omanFill, outlines } from '@/data/gulf-map-paths';
+import { gulf } from '@/data/company';
+import { formatNumber, type Lang } from '@/i18n/ui';
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+const c = gulf.mapCopy;
+
+const hub = { x: 161, y: 71.5 };
+// Marker positions in the logo's coordinate space (viewBox "96 26 84 72")
+const positions: Record<string, { x: number; y: number }> = {
+  kw: { x: 131.5, y: 38.5 },
+  bh: { x: 135.5, y: 45.5 },
+  qa: { x: 138.5, y: 51 },
+  ae: { x: 151, y: 55 },
+  sa: { x: 116, y: 60 },
+};
+
+// Great-circle distance between capitals (km)
+const toRad = (d: number) => (d * Math.PI) / 180;
+const distanceKm = (lat: number, lon: number) => {
+  const dLat = toRad(lat - gulf.hub.lat);
+  const dLon = toRad(lon - gulf.hub.lon);
+  const a = Math.sin(dLat / 2) ** 2 + Math.cos(toRad(gulf.hub.lat)) * Math.cos(toRad(lat)) * Math.sin(dLon / 2) ** 2;
+  return Math.round((2 * 6371 * Math.asin(Math.sqrt(a))) / 10) * 10;
+};
+
+const markers = gulf.countries.map((country) => ({
+  ...country,
+  ...positions[country.id]!,
+  km: distanceKm(country.lat, country.lon),
+}));
+const arc = (x: number, y: number) => {
+  const mx = (x + hub.x) / 2;
+  const my = (y + hub.y) / 2 - Math.abs(hub.x - x) * 0.25 - 4;
+  return `M${hub.x} ${hub.y}Q${mx} ${my} ${x} ${y}`;
+};
+---
+
+<div class="gulf-map" data-gulf-map>
+  <div class="map-stage">
+    <svg viewBox="96 26 84 72" role="img" aria-labelledby="gulf-map-title">
+      <title id="gulf-map-title">{gulf.title[lang]}: {markers.map((m) => m.name[lang]).join(', ')}</title>
+      <g class="land">{omanFill.map((p) => <path transform={p.transform} d={p.d} />)}</g>
+      <g class="outline">{outlines.map((p) => <path transform={p.transform} d={p.d} />)}</g>
+      <g class="arcs">
+        {markers.map((m, i) => <path d={arc(m.x, m.y)} pathLength="1" data-arc={m.id} style={`--i:${i}`} />)}
+      </g>
+      <g class="markers">
+        {
+          markers.map((m) => (
+            <g class="marker" data-marker={m.id}>
+              <circle cx={m.x} cy={m.y} r="4.5" class="hit" />
+              <circle cx={m.x} cy={m.y} r="2.4" class="ring" />
+              <circle cx={m.x} cy={m.y} r="1.1" class="dot" />
+              <text x={m.x - 3} y={m.y + 0.9} text-anchor="end">{m.name[lang]}</text>
+            </g>
+          ))
+        }
+      </g>
+      <g class="hub" data-marker="hub">
+        <circle cx={hub.x} cy={hub.y} r="5" class="hub-pulse" />
+        <circle cx={hub.x} cy={hub.y} r="3" class="hub-ring" />
+        <circle cx={hub.x} cy={hub.y} r="1.4" class="hub-dot" />
+        <text x={hub.x} y={hub.y + 8.5} text-anchor="middle" class="hub-label">{gulf.hub.name[lang]}</text>
+      </g>
+    </svg>
+  </div>
+
+  <div class="chips" role="group" aria-label={c.hint[lang]}>
+    {
+      markers.map((m) => (
+        <button type="button" aria-pressed="false" data-select={m.id}>
+          {m.name[lang]}
+        </button>
+      ))
+    }
+  </div>
+
+  <div class="panel" aria-live="polite">
+    <article class="card-info" data-info="hub">
+      <span class="icon-badge icon-badge--sm"><Icon name="MapPin" /></span>
+      <div>
+        <h3>{c.hubTitle[lang]}</h3>
+        <p>{c.hubText[lang]}</p>
+        <p class="meta"><strong>{markers.length}</strong> {c.markets[lang]}</p>
+      </div>
+    </article>
+    {
+      markers.map((m) => (
+        <article class="card-info" data-info={m.id} hidden>
+          <span class="icon-badge icon-badge--sm">
+            <Icon name="Navigation" />
+          </span>
+          <div>
+            <h3>{m.name[lang]}</h3>
+            <dl class="facts">
+              <div>
+                <dt>{c.capital[lang]}</dt>
+                <dd>{m.capital[lang]}</dd>
+              </div>
+              <div>
+                <dt>{c.distance[lang]}</dt>
+                <dd>
+                  ≈ {formatNumber(m.km)} <small>{c.km[lang]}</small>
+                </dd>
+              </div>
+            </dl>
+            <p>{c.countryText[lang]}</p>
+          </div>
+          <button type="button" class="reset" data-select="hub">{c.back[lang]}</button>
+        </article>
+      ))
+    }
+  </div>
+</div>
+
+<script>
+  document.querySelectorAll<HTMLElement>('[data-gulf-map]').forEach((root) => {
+    let pinned = 'hub';
+    const show = (id: string) => {
+      root.dataset.active = id;
+      root.querySelectorAll<SVGElement>('[data-arc]').forEach((a) => a.classList.toggle('on', a.dataset.arc === id));
+      root.querySelectorAll<SVGElement>('[data-marker]').forEach((m) => m.classList.toggle('on', m.dataset.marker === id));
+      root.querySelectorAll<HTMLElement>('[data-info]').forEach((card) => (card.hidden = card.dataset.info !== id));
+      root.querySelectorAll<HTMLButtonElement>('.chips [data-select]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.select === id)));
+    };
+    const select = (id: string) => {
+      pinned = id;
+      show(id);
+    };
+
+    // Map markers: hover previews, click/tap pins
+    root.querySelectorAll<SVGGElement>('.marker').forEach((m) => {
+      const id = m.dataset.marker!;
+      m.addEventListener('pointerenter', (e) => (e as PointerEvent).pointerType !== 'touch' && show(id));
+      m.addEventListener('pointerleave', (e) => (e as PointerEvent).pointerType !== 'touch' && show(pinned));
+      m.addEventListener('click', () => select(pinned === id ? 'hub' : id));
+    });
+    root.querySelector('.hub')?.addEventListener('click', () => select('hub'));
+
+    // Chips and "show all" buttons (keyboard accessible)
+    root.querySelectorAll<HTMLButtonElement>('[data-select]').forEach((b) =>
+      b.addEventListener('click', () => {
+        const id = b.dataset.select!;
+        select(pinned === id && id !== 'hub' ? 'hub' : id);
+      }),
+    );
+    root.querySelectorAll<HTMLButtonElement>('.chips [data-select]').forEach((b) => {
+      b.addEventListener('mouseenter', () => show(b.dataset.select!));
+      b.addEventListener('mouseleave', () => show(pinned));
+    });
+
+    root.classList.add('ready');
+    show('hub');
+  });
+</script>
+
+<style>
+  .gulf-map { display: grid; gap: 1.25rem; }
+  .map-stage { position: relative; }
+  svg { width: 100%; height: auto; overflow: visible; direction: ltr; }
+  .land path { fill: #1a4468; transition: fill 0.4s; }
+  .outline path { fill: var(--gold); }
+  .arcs path {
+    fill: none;
+    stroke: var(--gold-light);
+    stroke-width: 0.35;
+    stroke-dasharray: 0.02 0.018;
+    stroke-linecap: round;
+    opacity: 0.85;
+    transition: opacity 0.35s, stroke-width 0.35s;
+  }
+  .ready[data-active]:not([data-active='hub']) .arcs path { opacity: 0.15; }
+  .arcs path.on { opacity: 1 !important; stroke-width: 0.7; stroke-dasharray: 0.05 0.02; stroke: #ffd98a; filter: drop-shadow(0 0 0.8px rgba(226, 192, 126, 0.9)); }
+
+  .marker { cursor: pointer; }
+  .hit { fill: transparent; }
+  .dot { fill: var(--gold-light); transition: r 0.3s; }
+  .ring { fill: none; stroke: var(--gold); stroke-width: 0.3; opacity: 0.8; transform-box: fill-box; transform-origin: center; transition: transform 0.35s var(--ease), stroke-width 0.3s; }
+  .marker.on .ring { transform: scale(1.6); stroke-width: 0.45; stroke: var(--gold-light); }
+  .marker.on .dot { fill: #fff; }
+  .ready[data-active]:not([data-active='hub']) .marker:not(.on) text { opacity: 0.45; }
+  text { paint-order: stroke; stroke: var(--ink); stroke-width: 0.9px; stroke-linejoin: round; font-size: 2.6px; font-weight: 700; fill: var(--text-on-dark); letter-spacing: 0.05px; font-family: var(--font-body); transition: opacity 0.3s, font-size 0.3s; }
+  :root[lang='ar'] text { font-size: 3px; letter-spacing: 0; }
+  .marker.on text { fill: var(--gold-light); font-size: 3.2px; }
+  :root[lang='ar'] .marker.on text { font-size: 3.6px; }
+  .hub { cursor: pointer; }
+  .hub-dot { fill: var(--gold-light); }
+  .hub-ring { fill: none; stroke: var(--gold-light); stroke-width: 0.5; }
+  .hub-pulse { fill: rgba(226, 192, 126, 0.25); transform-origin: 161px 71.5px; }
+  .hub-label { font-size: 3px; fill: var(--gold-light); }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .hub-pulse { animation: hub 2.4s ease-out infinite; }
+    .arcs path { animation: flow 2.8s linear infinite; animation-delay: calc(var(--i) * -0.5s); }
+    .arcs path.on { animation-duration: 1.2s; }
+  }
+  @keyframes hub { 0% { transform: scale(0.6); opacity: 0.9; } 100% { transform: scale(2.2); opacity: 0; } }
+  @keyframes flow { to { stroke-dashoffset: -0.38; } }
+
+  .chips { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+  .chips button {
+    min-height: 40px;
+    padding: 0.4rem 1rem;
+    border-radius: 999px;
+    border: 1px solid var(--line-dark);
+    background: rgba(255, 255, 255, 0.04);
+    color: var(--text-on-dark);
+    font-weight: 600;
+    font-size: var(--step--1);
+    transition: background-color 0.25s, color 0.25s, border-color 0.25s;
+  }
+  :root[lang='ar'] .chips button { font-size: var(--step-0); }
+  .chips button:hover { border-color: var(--gold); }
+  .chips button[aria-pressed='true'] { background: var(--gold); color: var(--ink); border-color: var(--gold); }
+
+  .card-info {
+    position: relative;
+    display: flex;
+    gap: 1rem;
+    align-items: flex-start;
+    padding: 1.25rem 1.4rem;
+    border-radius: var(--radius-lg);
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--line-dark);
+    backdrop-filter: blur(6px);
+    animation: card-in 0.4s var(--ease);
+  }
+  .card-info[hidden] { display: none; }
+  .card-info:not([data-info='hub']) { padding-inline-end: 7rem; }
+  @keyframes card-in { from { opacity: 0; transform: translateY(8px); } }
+  .card-info h3 { font-size: var(--step-1); color: var(--gold-light); }
+  .card-info p { color: var(--text-on-dark-muted); font-size: var(--step--1); margin-block-start: 0.35rem; }
+  :root[lang='ar'] .card-info p { font-size: var(--step-0); }
+  .meta strong { color: var(--text-on-dark); font-size: var(--step-1); }
+  .facts { display: flex; flex-wrap: wrap; gap: 0.5rem 2rem; margin-block-start: 0.5rem; }
+  .facts dt { font-size: 0.75rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-on-dark-muted); }
+  :root[lang='ar'] .facts dt { letter-spacing: 0; font-size: 0.85rem; }
+  .facts dd { margin: 0; color: var(--text-on-dark); font-weight: 700; font-size: var(--step-1); font-variant-numeric: tabular-nums; }
+  .facts small { font-size: 0.7em; font-weight: 500; color: var(--text-on-dark-muted); }
+  .reset {
+    position: absolute;
+    top: 0.9rem;
+    inset-inline-end: 0.9rem;
+    padding: 0.25rem 0.7rem;
+    border-radius: 999px;
+    border: 1px solid var(--line-dark);
+    background: transparent;
+    color: var(--gold-light);
+    font-size: 0.8rem;
+    font-weight: 700;
+  }
+  .reset:hover { background: var(--gold); color: var(--ink); }
+</style>

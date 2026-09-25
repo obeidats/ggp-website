@@ -1,0 +1,62 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import PageHero from '@/components/PageHero.astro';
+import credits from '@/data/photo-credits.json';
+import { langPaths, useT, type Lang } from '@/i18n/ui';
+
+export const getStaticPaths = langPaths;
+const lang = Astro.params.lang as Lang;
+const t = useT(lang);
+const copy = {
+  title: { en: 'Photo Credits', ar: 'حقوق الصور' },
+  lead: {
+    en: 'Photography on this website is used under free licences. We thank the photographers below.',
+    ar: 'الصور المستخدمة في هذا الموقع مرخّصة بتراخيص مجانية، ونتقدّم بالشكر للمصورين المذكورين أدناه.',
+  },
+  photo: { en: 'Photo', ar: 'الصورة' },
+  by: { en: 'Photographer', ar: 'المصوّر' },
+  licence: { en: 'Licence', ar: 'الترخيص' },
+  source: { en: 'Source', ar: 'المصدر' },
+  unknown: { en: 'Unknown', ar: 'غير معروف' },
+  view: { en: 'View', ar: 'عرض' },
+};
+const licenceName = (c: (typeof credits)[number]) =>
+  c.license === 'CC0' ? 'CC0 1.0 (Public Domain)' : c.license === 'PDM' ? 'Public Domain Mark' : `CC ${c.license} ${c.license_version ?? ''}`.trim();
+---
+
+<BaseLayout lang={lang} title={copy.title[lang]} description={copy.lead[lang]} overlayHeader>
+  <PageHero lang={lang} title={copy.title[lang]} lead={copy.lead[lang]} photo="muttrahArchitecture" crumbs={[{ label: t('footer.credits') }]} />
+  <section class="section">
+    <div class="container">
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th scope="col">{copy.photo[lang]}</th>
+              <th scope="col">{copy.by[lang]}</th>
+              <th scope="col">{copy.licence[lang]}</th>
+              <th scope="col">{copy.source[lang]}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {
+              credits.map((c) => (
+                <tr>
+                  <td dir="ltr">{c.title}</td>
+                  <td dir="ltr">{c.creator === 'Unknown' ? copy.unknown[lang] : c.creator}</td>
+                  <td>{c.license_url ? <a href={c.license_url} rel="license noopener" target="_blank">{licenceName(c)}</a> : licenceName(c)}</td>
+                  <td><a href={c.source} target="_blank" rel="noopener">{copy.view[lang]}</a></td>
+                </tr>
+              ))
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  td a { color: var(--gold-deep); text-decoration: underline; text-underline-offset: 3px; }
+  td { font-size: var(--step--1); }
+</style>

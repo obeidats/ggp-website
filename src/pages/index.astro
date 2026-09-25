@@ -1,0 +1,36 @@
+---
+/**
+ * Root URL: send visitors to their language.
+ * Saved choice (from the language button) wins, then the browser language, else English.
+ */
+import { site } from '@/config/site';
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{site.name.en} | {site.name.ar}</title>
+    <meta name="robots" content="noindex" />
+    <link rel="canonical" href={`${site.url}/en/`} />
+    <link rel="alternate" hreflang="en" href={`${site.url}/en/`} />
+    <link rel="alternate" hreflang="ar" href={`${site.url}/ar/`} />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <script is:inline>
+      (function () {
+        var lang = 'en';
+        try {
+          var saved = localStorage.getItem('ggp-lang');
+          if (saved === 'en' || saved === 'ar') lang = saved;
+          else if ((navigator.language || '').toLowerCase().indexOf('ar') === 0) lang = 'ar';
+        } catch (e) {}
+        location.replace('/' + lang + '/');
+      })();
+    </script>
+    <noscript><meta http-equiv="refresh" content="0; url=/en/" /></noscript>
+  </head>
+  <body style="background:#0a1a2b;color:#f4efe6;font-family:system-ui,sans-serif;display:grid;place-items:center;min-height:100vh;margin:0">
+    <p><a href="/en/" style="color:#e2c07e">English</a> · <a href="/ar/" style="color:#e2c07e">العربية</a></p>
+  </body>
+</html>

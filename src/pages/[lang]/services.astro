@@ -1,0 +1,281 @@
+---
+import { Image } from 'astro:assets';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import PageHero from '@/components/PageHero.astro';
+import SectionHeading from '@/components/SectionHeading.astro';
+import Icon from '@/components/Icon.astro';
+import CtaBand from '@/components/CtaBand.astro';
+import Ecosystem from '@/components/Ecosystem.astro';
+import { photos } from '@/data/photos';
+import { services, serviceGroups, type Service } from '@/data/services';
+import { supportedSectors } from '@/data/sectors';
+import { ecosystem, hse } from '@/data/company';
+import { langPaths, useT, type Lang } from '@/i18n/ui';
+
+export const getStaticPaths = langPaths;
+const lang = Astro.params.lang as Lang;
+const t = useT(lang);
+
+const copy = {
+  title: { en: 'Our Services', ar: 'خدماتنا' },
+  lead: {
+    en: 'Global Gulf Pulse provides a platform for business development, representation, partnerships and operational support.',
+    ar: 'تقدّم نبض الخليج العالمية منصة متكاملة لتطوير الأعمال والتمثيل التجاري والشراكات والدعم التشغيلي.',
+  },
+  desc: {
+    en: 'Business development, commercial representation, regional partnerships, manpower solutions, operational support and consultation in Oman and the Gulf.',
+    ar: 'تطوير الأعمال والتمثيل التجاري والشراكات الإقليمية وحلول القوى العاملة والدعم التشغيلي والاستشارات في عُمان والخليج.',
+  },
+  jump: { en: 'Jump to a service', ar: 'انتقل إلى خدمة' },
+  whatWeOffer: { en: 'What we offer', ar: 'ما نقدّمه' },
+  sectorsEyebrow: { en: 'Industries', ar: 'القطاعات' },
+  sectorsTitle: { en: 'Sectors We Support', ar: 'القطاعات التي ندعمها' },
+  ecoEyebrow: { en: 'How it fits together', ar: 'كيف تتكامل الأدوار' },
+  hseEyebrow: { en: 'Our commitment', ar: 'التزامنا' },
+};
+const groups: Service['group'][] = ['core', 'support'];
+---
+
+<BaseLayout lang={lang} title={copy.title[lang]} description={copy.desc[lang]} overlayHeader>
+  <PageHero lang={lang} title={copy.title[lang]} lead={copy.lead[lang]} photo="muttrahWaterfront" crumbs={[{ label: t('nav.services') }]}>
+    <nav class="jump" aria-label={copy.jump[lang]}>
+      {services.map((s) => <a href={`#${s.id}`}><Icon name={s.icon} size={16} />{s.title[lang]}</a>)}
+    </nav>
+  </PageHero>
+
+  {
+    groups.map((g) => (
+      <section class="section group">
+        <div class="container">
+          <p class="group-label" data-reveal>{serviceGroups[g][lang]}</p>
+          {services
+            .filter((s) => s.group === g)
+            .map((s, i) => (
+              <article id={s.id} class:list={['service', { reverse: i % 2 === 1 }]}>
+                <div class="media" data-reveal>
+                  <div class="photo">
+                    <Image src={photos[s.photo].src} alt={photos[s.photo].alt[lang]} widths={[480, 800, 1100]} sizes="(min-width: 960px) 45vw, 100vw" />
+                  </div>
+                  {s.highlight && (
+                    <p class="highlight">
+                      <Icon name="MapPin" size={20} />
+                      {s.highlight[lang]}
+                    </p>
+                  )}
+                </div>
+                <div class="body">
+                  <div class="title-row" data-reveal>
+                    <span class="icon-badge">
+                      <Icon name={s.icon} />
+                    </span>
+                    <h2>{s.title[lang]}</h2>
+                  </div>
+                  <p class="intro" data-reveal>{s.intro[lang]}</p>
+                  <h3 class="sub" data-reveal>{copy.whatWeOffer[lang]}</h3>
+                  <ul role="list" class:list={['points', { detailed: s.points.some((p) => p.text) }]} data-reveal>
+                    {s.points.map((p) => (
+                      <li>
+                        <Icon name="CircleCheck" size={20} />
+                        <div>
+                          <strong>{p.title[lang]}</strong>
+                          {p.text && <span>{p.text[lang]}</span>}
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
+                  <ul role="list" class:list={['benefits', { four: s.benefits.length === 4 }]} data-reveal>
+                    {s.benefits.map((b) => (
+                      <li>
+                        <Icon name={b.icon} size={26} />
+                        <strong>{b.title[lang]}</strong>
+                        <span>{b.text[lang]}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </article>
+            ))}
+        </div>
+      </section>
+    ))
+  }
+
+  <!-- SECTORS -->
+  <section class="section section--white">
+    <div class="container">
+      <SectionHeading eyebrow={copy.sectorsEyebrow[lang]} title={copy.sectorsTitle[lang]} accent={lang === 'ar' ? 'ندعمها' : 'We Support'} center />
+      <ul role="list" class="sector-grid">
+        {
+          supportedSectors.map((s, i) => (
+            <li data-reveal style={`--delay:${(i % 4) * 0.06}s`}>
+              <span class="icon-badge icon-badge--lg"><Icon name={s.icon} /></span>
+              <span>{s.title[lang]}</span>
+              <hr class="card-rule" />
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </section>
+
+  <!-- ECOSYSTEM -->
+  <section class="section">
+    <div class="container split">
+      <SectionHeading eyebrow={copy.ecoEyebrow[lang]} title={ecosystem.title[lang]} accent={lang === 'ar' ? 'شراكاتنا' : 'Ecosystem'} lead={ecosystem.text[lang]} />
+      <div data-reveal><Ecosystem lang={lang} /></div>
+    </div>
+  </section>
+
+  <!-- HSE -->
+  <section class="section section--dark hse" id="hse">
+    <div class="container split split--wide-start">
+      <div>
+        <SectionHeading eyebrow={copy.hseEyebrow[lang]} title={hse.title[lang]} lead={hse.intro[lang]} />
+        <ul role="list" class="hse-list">
+          {
+            hse.commitments.map((c, i) => (
+              <li data-reveal style={`--delay:${i * 0.08}s`}>
+                <span class="icon-badge icon-badge--sm"><Icon name={c.icon} /></span>
+                <div>
+                  <h3>{c.title[lang]}</h3>
+                  <p>{c.text[lang]}</p>
+                </div>
+              </li>
+            ))
+          }
+        </ul>
+        <p class="closing" data-reveal>{hse.closing[lang]}</p>
+      </div>
+      <div class="photo photo--arc" data-reveal>
+        <Image src={photos.siteTeam.src} alt={photos.siteTeam.alt[lang]} widths={[480, 800]} sizes="(min-width: 960px) 40vw, 100vw" />
+      </div>
+    </div>
+  </section>
+
+  <CtaBand lang={lang} />
+</BaseLayout>
+
+<style>
+  .jump { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-block-start: 2rem; }
+  .jump a {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    padding: 0.5rem 0.95rem;
+    border-radius: 999px;
+    border: 1px solid var(--line-dark);
+    background: rgba(255, 255, 255, 0.06);
+    color: var(--text-on-dark);
+    font-size: var(--step--1);
+    font-weight: 600;
+    transition: background-color 0.25s, color 0.25s, border-color 0.25s;
+  }
+  :root[lang='ar'] .jump a { font-size: var(--step-0); }
+  .jump a:hover { background: var(--gold); border-color: var(--gold); color: var(--ink); }
+  .jump :global(svg) { color: var(--gold-light); }
+  .jump a:hover :global(svg) { color: var(--ink); }
+
+  .group + .group { padding-block-start: 0; }
+  .group-label {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-block-end: 3rem;
+    font-weight: 800;
+    font-size: var(--step--1);
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--gold-deep);
+  }
+  :root[lang='ar'] .group-label { letter-spacing: 0; font-size: var(--step-1); }
+  .group-label::after { content: ''; flex: 1; height: 1px; background: var(--line); }
+
+  .service { display: grid; gap: clamp(2rem, 1rem + 3vw, 4rem); align-items: start; scroll-margin-top: calc(var(--header-h) + 1.5rem); }
+  .service + .service { margin-block-start: clamp(4rem, 3rem + 4vw, 7rem); }
+  @media (min-width: 960px) {
+    .service { grid-template-columns: 0.9fr 1.1fr; }
+    .service.reverse .media { order: 2; }
+    .media { position: sticky; top: calc(var(--header-h) + 2rem); }
+  }
+  .media .photo { aspect-ratio: 4 / 3.4; }
+  .service:not(.reverse) .photo { border-start-start-radius: 140px; }
+  .service.reverse .photo { border-start-end-radius: 140px; }
+  .highlight {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    margin-block-start: 1.25rem;
+    padding: 1rem 1.3rem;
+    border-radius: var(--radius);
+    background: var(--ink);
+    color: var(--gold-light);
+    font-family: var(--font-display);
+    font-size: var(--step-2);
+    border: 1px solid var(--gold);
+  }
+  .title-row { display: flex; align-items: center; gap: 1rem; }
+  .title-row h2 { font-size: var(--step-4); }
+  .intro { margin-block: 1.25rem 2rem; font-size: var(--step-1); color: var(--text-muted); }
+  .sub { font-family: var(--font-body); font-size: var(--step--1); font-weight: 800; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink); margin-block-end: 1rem; }
+  :root[lang='ar'] .sub { letter-spacing: 0; font-size: var(--step-0); font-family: var(--font-display); }
+  .points { display: grid; gap: 0.6rem; }
+  .points:not(.detailed) { grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr)); }
+  .points li {
+    display: flex;
+    gap: 0.8rem;
+    align-items: flex-start;
+    padding: 0.85rem 1rem;
+    border-radius: var(--radius);
+    background: var(--white);
+    border: 1px solid var(--line);
+  }
+  .points :global(svg) { color: #a8781f; flex: none; margin-block-start: 0.2rem; }
+  .points strong { color: var(--ink); display: block; }
+  .points span { color: var(--text-muted); font-size: var(--step--1); }
+  :root[lang='ar'] .points span { font-size: var(--step-0); }
+  .benefits {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1px;
+    margin-block-start: 1.5rem;
+    border-radius: var(--radius);
+    overflow: hidden;
+    background: var(--ink-3);
+    border: 1px solid var(--ink);
+  }
+  @media (min-width: 640px) { .benefits.four { grid-template-columns: repeat(4, 1fr); } }
+  .benefits li { display: grid; gap: 0.2rem; align-content: start; padding: 1.1rem; background: var(--ink); color: var(--text-on-dark-muted); font-size: var(--step--1); }
+  :root[lang='ar'] .benefits li { font-size: var(--step-0); }
+  .benefits :global(svg) { color: var(--gold-light); margin-block-end: 0.4rem; }
+  .benefits strong { color: var(--text-on-dark); font-size: var(--step--1); letter-spacing: 0.06em; text-transform: uppercase; }
+  :root[lang='ar'] .benefits strong { letter-spacing: 0; font-size: var(--step-0); }
+
+  .sector-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(calc(50% - 0.7rem), 260px), 1fr)); gap: 1.25rem; }
+  .sector-grid li {
+    display: grid;
+    justify-items: center;
+    align-content: start;
+    gap: 1rem;
+    padding: 2rem 1rem 1.25rem;
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--line);
+    background: var(--cream);
+    text-align: center;
+    font-weight: 700;
+    color: var(--ink);
+    transition: transform 0.35s var(--ease), box-shadow 0.35s, border-color 0.35s;
+  }
+  .sector-grid li:hover { transform: translateY(-5px); box-shadow: var(--shadow); border-color: var(--gold-light); }
+  .sector-grid .card-rule { margin: 0; }
+
+  .hse { background: radial-gradient(ellipse 60% 70% at 0% 100%, rgba(0, 104, 117, 0.3), transparent 60%), var(--ink); }
+  .hse-list { display: grid; gap: 1rem; }
+  .hse-list li { display: flex; gap: 1rem; align-items: center; padding: 1rem 1.2rem; border-radius: var(--radius); background: var(--ink-2); border: 1px solid var(--line-dark); }
+  .hse-list h3 { font-family: var(--font-body); font-size: var(--step-0); font-weight: 800; color: var(--gold-light); }
+  .hse-list p { color: var(--text-on-dark-muted); font-size: var(--step--1); }
+  :root[lang='ar'] .hse-list p { font-size: var(--step-0); }
+  .closing { margin-block-start: 1.75rem; padding-inline-start: 1.25rem; border-inline-start: 2px solid var(--gold); color: var(--text-on-dark); font-size: var(--step-1); font-family: var(--font-display); }
+  .hse .photo { aspect-ratio: 4 / 5; }
+  .hse .photo :global(img) { width: 100%; height: 100%; object-fit: cover; }
+  .media .photo :global(img) { width: 100%; height: 100%; object-fit: cover; }
+</style>

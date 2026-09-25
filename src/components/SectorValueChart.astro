@@ -1,0 +1,103 @@
+---
+/**
+ * Portfolio value by sector — ranked horizontal bars (single series, one hue).
+ * Each row is focusable and shows project counts in a tooltip on hover/focus.
+ * The full numbers are always available in the table on the Projects page.
+ */
+import { portfolioSectors } from '@/data/sectors';
+import { formatNumber, useT, type Lang } from '@/i18n/ui';
+
+interface Props {
+  lang: Lang;
+  title: string;
+}
+const { lang, title } = Astro.props;
+const t = useT(lang);
+const rows = [...portfolioSectors].sort((a, b) => b.valueOMR - a.valueOMR);
+const max = rows[0]!.valueOMR;
+const words = {
+  projects: { en: 'projects', ar: 'مشاريع' },
+  completed: { en: 'completed', ar: 'منجزة' },
+  ongoing: { en: 'ongoing', ar: 'قيد التنفيذ' },
+};
+const millions = (v: number) => `${formatNumber(v / 1_000_000, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}M`;
+---
+
+<figure class="chart" data-reveal>
+  <figcaption>{title} <span>({t('label.omr')})</span></figcaption>
+  <ul role="list">
+    {
+      rows.map((r) => (
+        <li tabindex="0" aria-label={`${r.title[lang]}: ${t('label.omr')} ${formatNumber(r.valueOMR)}, ${r.projects} ${words.projects[lang]}, ${r.completed} ${words.completed[lang]}, ${r.ongoing} ${words.ongoing[lang]}`}>
+          <span class="name">{r.title[lang]}</span>
+          <span class="track" aria-hidden="true">
+            <span class="bar" style={`--w:${((r.valueOMR / max) * 100).toFixed(2)}%`} />
+          </span>
+          <span class="val" aria-hidden="true">{millions(r.valueOMR)}</span>
+          <span class="tip" role="presentation" aria-hidden="true">
+            <strong>{t('label.omr')} {formatNumber(r.valueOMR)}</strong>
+            <span>{r.projects} {words.projects[lang]} · {r.completed} {words.completed[lang]} · {r.ongoing} {words.ongoing[lang]}</span>
+          </span>
+        </li>
+      ))
+    }
+  </ul>
+</figure>
+
+<style>
+  .chart { --bar: #a8781f; }
+  figcaption { font-weight: 700; color: var(--ink); margin-block-end: 1.25rem; }
+  figcaption span { color: var(--text-muted); font-weight: 500; }
+  ul { display: grid; gap: 0.35rem; }
+  li {
+    position: relative;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas: 'name val' 'track track';
+    gap: 0.3rem 1rem;
+    padding: 0.55rem 0.6rem;
+    border-radius: 10px;
+    cursor: default;
+    outline-offset: 0;
+  }
+  li:hover, li:focus-visible { background: var(--cream); }
+  .name { grid-area: name; font-size: var(--step--1); color: var(--text); font-weight: 600; }
+  :root[lang='ar'] .name { font-size: var(--step-0); }
+  .val { grid-area: val; font-size: var(--step--1); color: var(--text); font-weight: 700; font-variant-numeric: tabular-nums; unicode-bidi: isolate; direction: ltr; }
+  .track { grid-area: track; height: 10px; }
+  .bar {
+    display: block;
+    height: 100%;
+    width: var(--w);
+    background: var(--bar);
+    border-start-end-radius: 4px;
+    border-end-end-radius: 4px;
+    transform-origin: left;
+  }
+  [dir='rtl'] .bar { transform-origin: right; }
+  .bar { transition: transform 1.2s var(--ease) 0.2s; }
+  @media (prefers-reduced-motion: no-preference) {
+    :global(.js) .chart:not(.is-visible) .bar { transform: scaleX(0); }
+  }
+  .tip {
+    position: absolute;
+    inset-inline-end: 0.6rem;
+    bottom: calc(100% - 0.4rem);
+    z-index: 3;
+    display: grid;
+    gap: 0.1rem;
+    padding: 0.55rem 0.8rem;
+    border-radius: 10px;
+    background: var(--ink);
+    color: var(--text-on-dark-muted);
+    font-size: 0.82rem;
+    box-shadow: var(--shadow);
+    white-space: nowrap;
+    opacity: 0;
+    translate: 0 6px;
+    pointer-events: none;
+    transition: opacity 0.2s, translate 0.2s;
+  }
+  .tip strong { color: var(--gold-light); font-variant-numeric: tabular-nums; }
+  li:hover .tip, li:focus-visible .tip { opacity: 1; translate: 0 0; }
+</style>

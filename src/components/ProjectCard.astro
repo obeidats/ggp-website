@@ -1,0 +1,63 @@
+---
+import { Image } from 'astro:assets';
+import Icon from './Icon.astro';
+import { getPortfolioSector } from '@/data/sectors';
+import { photos } from '@/data/photos';
+import { statusLabel, type Project } from '@/data/projects';
+import { formatNumber, href, useT, type Lang } from '@/i18n/ui';
+
+interface Props {
+  lang: Lang;
+  project: Project;
+}
+const { lang, project } = Astro.props;
+const t = useT(lang);
+const d = project.data;
+const sector = getPortfolioSector(d.sector)!;
+const cover = d.cover ?? photos[sector.photo].src;
+---
+
+<a class="project-card" href={href(lang, `projects/${project.id}`)} data-sector={d.sector} data-status={d.status}>
+  <div class="img">
+    <Image src={cover} alt="" widths={[400, 700]} sizes="(min-width: 960px) 30vw, 100vw" />
+    <span class:list={['status', d.status]}>{statusLabel[d.status][lang]}</span>
+  </div>
+  <div class="body">
+    <p class="sector"><Icon name={sector.icon} size={16} />{sector.title[lang]}</p>
+    <h3>{d.title[lang]}</h3>
+    <p class="summary">{d.summary[lang]}</p>
+    <dl>
+      {d.location && (<div><dt class="visually-hidden">{lang === 'ar' ? 'الموقع' : 'Location'}</dt><dd><Icon name="MapPin" size={15} />{d.location[lang]}</dd></div>)}
+      {d.valueOMR !== undefined && (<div><dt class="visually-hidden">{lang === 'ar' ? 'القيمة' : 'Value'}</dt><dd><Icon name="Coins" size={15} />{t('label.omr')} {formatNumber(d.valueOMR)}</dd></div>)}
+    </dl>
+  </div>
+</a>
+
+<style>
+  .project-card {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    background: var(--white);
+    border: 1px solid var(--line);
+    box-shadow: var(--shadow-sm);
+    transition: transform 0.4s var(--ease), box-shadow 0.4s;
+  }
+  .project-card:hover { transform: translateY(-6px); box-shadow: var(--shadow-lg); }
+  .img { position: relative; aspect-ratio: 16 / 10; overflow: hidden; }
+  .img :global(img) { width: 100%; height: 100%; object-fit: cover; transition: transform 1s var(--ease); }
+  .project-card:hover .img :global(img) { transform: scale(1.06); }
+  .status { position: absolute; top: 1rem; inset-inline-start: 1rem; padding: 0.3rem 0.75rem; border-radius: 999px; font-size: 0.78rem; font-weight: 800; }
+  .status.completed { background: var(--ink); color: var(--gold-light); }
+  .status.ongoing { background: var(--gold); color: var(--ink); }
+  .body { display: grid; gap: 0.5rem; padding: 1.5rem; align-content: start; flex: 1; }
+  .sector { display: flex; align-items: center; gap: 0.4rem; font-size: 0.8rem; font-weight: 700; color: var(--gold-deep); }
+  h3 { font-size: var(--step-2); }
+  .summary { color: var(--text-muted); font-size: var(--step--1); }
+  :root[lang='ar'] .summary { font-size: var(--step-0); }
+  dl { display: flex; flex-wrap: wrap; gap: 0.4rem 1.2rem; margin-block-start: 0.5rem; font-size: 0.85rem; font-weight: 600; color: var(--ink); }
+  dd { display: flex; align-items: center; gap: 0.35rem; margin: 0; }
+  dd :global(svg) { color: var(--gold-deep); }
+</style>

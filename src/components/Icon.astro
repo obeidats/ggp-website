@@ -1,0 +1,25 @@
+---
+/**
+ * Inline Lucide icon rendered at build time (no client JS).
+ * Usage: <Icon name="Handshake" /> — names: https://lucide.dev/icons (PascalCase)
+ */
+import * as icons from 'lucide-static';
+
+interface Props {
+  name: string;
+  size?: number;
+  class?: string;
+  label?: string; // give a label only when the icon carries meaning on its own
+}
+
+const { name, size = 24, class: className = '', label } = Astro.props;
+const svg = (icons as Record<string, string>)[name];
+if (!svg) throw new Error(`Unknown icon "${name}". See https://lucide.dev/icons`);
+
+const a11y = label ? `role="img" aria-label="${label}"` : 'aria-hidden="true" focusable="false"';
+const html = svg
+  .replace(/\s(width|height|class)="[^"]*"/g, '')
+  .replace('<svg', `<svg width="${size}" height="${size}" class="icon ${className}" ${a11y}`);
+---
+
+<Fragment set:html={html} />

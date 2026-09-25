@@ -1,0 +1,83 @@
+---
+import Icon from './Icon.astro';
+import { site } from '@/config/site';
+import { portfolioTotals } from '@/data/sectors';
+import { formatNumber, useT, type L, type Lang } from '@/i18n/ui';
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+const t = useT(lang);
+
+interface Stat {
+  icon: string;
+  value: number;
+  label: L;
+  decimals?: number;
+  prefix?: string;
+  suffix?: string;
+  animate?: boolean;
+}
+const stats: Stat[] = [
+  { icon: 'Flag', value: site.founded, label: { en: 'Established', ar: 'سنة التأسيس' }, animate: false },
+  { icon: 'ClipboardList', value: portfolioTotals.projects, label: { en: 'Projects & contracts managed', ar: 'مشاريع وعقود تحت إدارتنا' } },
+  { icon: 'Clock3', value: portfolioTotals.ongoing, label: { en: 'Ongoing projects', ar: 'مشاريع قيد التنفيذ' } },
+  { icon: 'Coins', value: portfolioTotals.valueOMR / 1_000_000, decimals: 1, ...(lang === 'ar' ? { suffix: `مليون ${t('label.omr')}` } : { prefix: t('label.omr'), suffix: 'M' }), label: { en: 'Total portfolio value', ar: 'إجمالي قيمة المحفظة' } },
+];
+const show = (s: Stat) =>
+  s.animate === false ? String(s.value) : formatNumber(s.value, { minimumFractionDigits: s.decimals ?? 0, maximumFractionDigits: s.decimals ?? 0 });
+---
+
+<section class="stats" aria-label={lang === 'ar' ? 'أرقامنا' : 'GGP in numbers'}>
+  <div class="container">
+    <ul role="list" class="grid">
+      {
+        stats.map((s, i) => (
+          <li data-reveal style={`--delay:${i * 0.08}s`}>
+            <span class="icon-badge icon-badge--sm">
+              <Icon name={s.icon} />
+            </span>
+            <p class="value">
+              {s.prefix && <span class="affix">{s.prefix} </span>}
+              <span data-count={s.animate === false ? undefined : s.value} data-decimals={s.decimals ?? 0}>
+                {show(s)}
+              </span>
+              {s.suffix && <span class="affix">{s.suffix}</span>}
+            </p>
+            <p class="label">{s.label[lang]}</p>
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+</section>
+
+<style>
+  .stats { position: relative; z-index: 2; margin-block-start: calc(-1 * clamp(2.5rem, 5vw, 4.5rem)); }
+  .grid {
+    grid-template-columns: repeat(auto-fit, minmax(min(50%, 220px), 1fr));
+    gap: 0;
+    background: var(--white);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg);
+    overflow: hidden;
+  }
+  li { display: grid; justify-items: start; gap: 0.35rem; padding: clamp(1.4rem, 1rem + 1.5vw, 2.2rem); border-inline-end: 1px solid var(--line); border-block-end: 1px solid var(--line); margin-block-end: -1px; }
+  li:last-child { border-inline-end: 0; }
+  .value {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: var(--step-4);
+    line-height: 1;
+    color: var(--ink);
+    margin-block-start: 0.6rem;
+    font-variant-numeric: tabular-nums;
+    unicode-bidi: isolate;
+  }
+  :root[lang='ar'] .value { display: flex; flex-wrap: wrap; align-items: baseline; column-gap: 0.45rem; row-gap: 0.3rem; }
+  .affix { font-size: 0.5em; color: var(--gold-deep); font-family: var(--font-body); font-weight: 800; white-space: nowrap; }
+  .label { color: var(--text-muted); font-weight: 600; font-size: var(--step--1); }
+  :root[lang='ar'] .label { font-size: var(--step-0); }
+</style>
