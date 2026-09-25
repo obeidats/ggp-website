@@ -470,7 +470,8 @@ const pct = Math.round((portfolioTotals.completed / portfolioTotals.projects) * 
   .support-card h3 { font-size: var(--step-1); margin-block-end: 0.3rem; }
 
   /* ---------- Sectors ---------- */
-  .sectors { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(calc(50% - 0.5rem), 200px), 1fr)); gap: 0.9rem; }
+  .sectors { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.9rem; }
+  .sectors li > span:last-child { min-width: 0; overflow-wrap: break-word; hyphens: auto; }
   @media (max-width: 480px) { .sectors li { flex-direction: column; text-align: center; font-size: 0.9rem; } }
   .sectors li {
     display: flex;
