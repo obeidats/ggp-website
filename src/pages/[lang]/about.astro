@@ -40,7 +40,7 @@ const copy = {
 
 type Fact = { label: { en: string; ar: string }; value: string | string[]; href?: string; ltr?: boolean };
 const facts: Fact[] = [
-  { label: { en: 'Full name', ar: 'الاسم الكامل' }, value: lang === 'ar' ? `${site.name.ar} (${site.name.en})` : site.name.en },
+  { label: { en: 'Full name', ar: 'الاسم الكامل' }, value: lang === 'ar' ? [site.name.ar, site.name.en] : site.name.en },
   { label: { en: 'Short name', ar: 'الاسم المختصر' }, value: site.shortName, ltr: true },
   { label: { en: 'Email address', ar: 'البريد الإلكتروني' }, value: site.email, href: `mailto:${site.email}`, ltr: true },
   { label: { en: 'Commercial registration (CR)', ar: 'السجل التجاري' }, value: site.cr, ltr: true },
@@ -68,26 +68,32 @@ const marketFacts = [
 
   <!-- WHO WE ARE -->
   <section class="section">
-    <div class="container split split--wide-end who">
+    <div class="container split who">
       <div class="stack" style="--stack:1.5rem">
-        <dl class="facts" data-reveal>
-          {
-            facts.map((f) => (
-              <div>
-                <dt>{f.label[lang]}</dt>
-                <dd>
-                  {f.href ? (
-                    <a href={f.href} dir={f.ltr ? 'ltr' : undefined}>{f.value}</a>
-                  ) : Array.isArray(f.value) ? (
-                    f.value.map((line) => <span>{line}</span>)
-                  ) : (
-                    <span dir={f.ltr ? 'ltr' : undefined}>{f.value}</span>
-                  )}
-                </dd>
-              </div>
-            ))
-          }
-        </dl>
+        <div class="profile" data-reveal>
+          <p class="profile-head">
+            <span class="icon-badge icon-badge--sm"><Icon name="Building2" /></span>
+            {lang === 'ar' ? 'الملف التعريفي للشركة' : 'Company Profile'}
+          </p>
+          <dl class="facts">
+            {
+              facts.map((f) => (
+                <div>
+                  <dt>{f.label[lang]}</dt>
+                  <dd>
+                    {f.href ? (
+                      <a href={f.href} dir={f.ltr ? 'ltr' : undefined}>{f.value}</a>
+                    ) : Array.isArray(f.value) ? (
+                      f.value.map((line) => <span dir="auto">{line}</span>)
+                    ) : (
+                      <span dir={f.ltr ? 'ltr' : undefined}>{f.value}</span>
+                    )}
+                  </dd>
+                </div>
+              ))
+            }
+          </dl>
+        </div>
         <div class="photo photo--arc who-photo" data-reveal>
           <Image src={photos.mosqueCourtyard.src} alt={photos.mosqueCourtyard.alt[lang]} widths={[480, 800, 1100]} sizes="(min-width: 960px) 40vw, 100vw" />
         </div>
@@ -277,15 +283,35 @@ const marketFacts = [
 <style>
   .who { align-items: start; }
   .who-photo { aspect-ratio: 4 / 3; }
-  .facts { margin: 0; border-radius: var(--radius-lg); background: var(--white); border: 1px solid var(--line); box-shadow: var(--shadow); overflow: hidden; }
-  .facts div { display: grid; grid-template-columns: minmax(7rem, 0.8fr) 1.2fr; gap: 1rem; padding: 0.95rem 1.25rem; }
+  .profile { border-radius: var(--radius-lg); background: var(--white); border: 1px solid var(--line); box-shadow: var(--shadow); overflow: hidden; }
+  .profile-head {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1rem 1.5rem;
+    background: var(--ink);
+    color: var(--text-on-dark);
+    font-family: var(--font-display);
+    font-size: var(--step-1);
+    font-weight: 600;
+    border-block-end: 3px solid var(--gold);
+  }
+  /* One shared label column (subgrid) so every value starts on the same line. */
+  .facts { margin: 0; display: grid; grid-template-columns: fit-content(15rem) 1fr; }
+  .facts div { grid-column: 1 / -1; display: grid; grid-template-columns: subgrid; align-items: baseline; column-gap: 1.5rem; padding: 0.9rem 1.5rem; }
   .facts div + div { border-block-start: 1px solid var(--line); }
-  .facts dt { color: var(--gold-deep); font-size: var(--step--1); font-weight: 600; line-height: 1.4; }
-  .facts dd { margin: 0; display: grid; color: var(--ink); font-weight: 600; overflow-wrap: anywhere; }
-  .facts dd span[dir='ltr'], .facts dd a { unicode-bidi: isolate; justify-self: start; }
+  .facts div:nth-child(even) { background: var(--cream); }
+  .facts dt { color: var(--gold-deep); font-size: var(--step--1); font-weight: 700; letter-spacing: 0.02em; white-space: nowrap; }
+  .facts dd { margin: 0; display: grid; gap: 0.15rem; color: var(--ink); font-weight: 600; line-height: 1.5; overflow-wrap: anywhere; }
+  .facts dd > * { justify-self: start; unicode-bidi: isolate; }
+  .facts dd [dir='ltr'] { font-variant-numeric: tabular-nums; }
   .facts a { color: var(--ink); text-decoration: none; }
   .facts a:hover { color: var(--gold-deep); text-decoration: underline; }
-  @media (max-width: 420px) { .facts div { grid-template-columns: 1fr; gap: 0.2rem; } }
+  @media (max-width: 480px) {
+    .facts { grid-template-columns: 1fr; }
+    .facts div { row-gap: 0.2rem; }
+    .facts dt { white-space: normal; }
+  }
   .who-photo :global(img), .market-photo :global(img) { width: 100%; height: 100%; object-fit: cover; }
   .who-text { color: var(--text-muted); font-size: var(--step-1); }
   .highlights { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr)); gap: 0.9rem; margin-block-start: 2rem !important; }
