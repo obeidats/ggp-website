@@ -10,6 +10,7 @@ import CtaBand from '@/components/CtaBand.astro';
 import { photos } from '@/data/photos';
 import { difference, homeMarket, mission, pillars, roadmap, story, values, vision, whoWeAre } from '@/data/company';
 import { langPaths, useT, type Lang } from '@/i18n/ui';
+import { site } from '@/config/site';
 
 export const getStaticPaths = langPaths;
 const lang = Astro.params.lang as Lang;
@@ -22,8 +23,8 @@ const copy = {
     ar: 'شركة عُمانية تربط المؤسسات بالمعرفة المحلية والعلاقات والمسارات التجارية اللازمة للنمو في عُمان ومنطقة الخليج.',
   },
   desc: {
-    en: 'Who we are, our story since 2014, our vision, mission and core values: trust, integrity, partnership, excellence and growth.',
-    ar: 'تعرّف على نبض الخليج العالمية: قصتنا منذ 2014، ورؤيتنا ورسالتنا وقيمنا الجوهرية: الثقة والنزاهة والشراكة والتميّز والنمو.',
+    en: 'Who we are, our story since 2012, our vision, mission and core values: trust, integrity, partnership, excellence and growth.',
+    ar: 'تعرّف على نبض الخليج العالمية: قصتنا منذ 2012، ورؤيتنا ورسالتنا وقيمنا الجوهرية: الثقة والنزاهة والشراكة والتميّز والنمو.',
   },
   whoEyebrow: { en: 'Our company', ar: 'شركتنا' },
   storyEyebrow: { en: 'Our journey', ar: 'مسيرتنا' },
@@ -37,7 +38,21 @@ const copy = {
   goal: { en: 'Goal', ar: 'هدف' },
 };
 
-const thisYear = new Date().getFullYear();
+type Fact = { label: { en: string; ar: string }; value: string | string[]; href?: string; ltr?: boolean };
+const facts: Fact[] = [
+  { label: { en: 'Full name', ar: 'الاسم الكامل' }, value: lang === 'ar' ? `${site.name.ar} (${site.name.en})` : site.name.en },
+  { label: { en: 'Short name', ar: 'الاسم المختصر' }, value: site.shortName, ltr: true },
+  { label: { en: 'Email address', ar: 'البريد الإلكتروني' }, value: site.email, href: `mailto:${site.email}`, ltr: true },
+  { label: { en: 'Commercial registration (CR)', ar: 'السجل التجاري' }, value: site.cr, ltr: true },
+  { label: { en: 'Established', ar: 'سنة التأسيس' }, value: String(site.founded) },
+  { label: { en: 'Mailing address', ar: 'العنوان البريدي' }, value: site.mailingAddress, ltr: true },
+  {
+    label: { en: 'Location', ar: 'الموقع' },
+    value: lang === 'ar' ? ['الخوض، السيب', 'مسقط، سلطنة عُمان'] : ['Al Khoudh, Seeb', 'Muscat, Sultanate of Oman'],
+  },
+];
+
+const thisYear =new Date().getFullYear();
 const stage = (y: number) => (y < thisYear ? 'achieved' : y === thisYear ? 'now' : 'goal');
 const marketFacts = [
   { icon: 'MapPin', text: { en: 'Muscat', ar: 'مسقط' } },
@@ -53,9 +68,29 @@ const marketFacts = [
 
   <!-- WHO WE ARE -->
   <section class="section">
-    <div class="container split split--wide-end">
-      <div class="photo photo--arc who-photo" data-reveal>
-        <Image src={photos.mosqueCourtyard.src} alt={photos.mosqueCourtyard.alt[lang]} widths={[480, 800, 1100]} sizes="(min-width: 960px) 40vw, 100vw" />
+    <div class="container split split--wide-end who">
+      <div class="stack" style="--stack:1.5rem">
+        <dl class="facts" data-reveal>
+          {
+            facts.map((f) => (
+              <div>
+                <dt>{f.label[lang]}</dt>
+                <dd>
+                  {f.href ? (
+                    <a href={f.href} dir={f.ltr ? 'ltr' : undefined}>{f.value}</a>
+                  ) : Array.isArray(f.value) ? (
+                    f.value.map((line) => <span>{line}</span>)
+                  ) : (
+                    <span dir={f.ltr ? 'ltr' : undefined}>{f.value}</span>
+                  )}
+                </dd>
+              </div>
+            ))
+          }
+        </dl>
+        <div class="photo photo--arc who-photo" data-reveal>
+          <Image src={photos.mosqueCourtyard.src} alt={photos.mosqueCourtyard.alt[lang]} widths={[480, 800, 1100]} sizes="(min-width: 960px) 40vw, 100vw" />
+        </div>
       </div>
       <div class="stack" style="--stack:1.2rem">
         <SectionHeading eyebrow={copy.whoEyebrow[lang]} title={whoWeAre.title[lang]} accent={lang === 'ar' ? 'نحن' : 'Are'} />
@@ -240,7 +275,17 @@ const marketFacts = [
 </BaseLayout>
 
 <style>
-  .who-photo { aspect-ratio: 4 / 5; }
+  .who { align-items: start; }
+  .who-photo { aspect-ratio: 4 / 3; }
+  .facts { margin: 0; border-radius: var(--radius-lg); background: var(--white); border: 1px solid var(--line); box-shadow: var(--shadow); overflow: hidden; }
+  .facts div { display: grid; grid-template-columns: minmax(7rem, 0.8fr) 1.2fr; gap: 1rem; padding: 0.95rem 1.25rem; }
+  .facts div + div { border-block-start: 1px solid var(--line); }
+  .facts dt { color: var(--gold-deep); font-size: var(--step--1); font-weight: 600; line-height: 1.4; }
+  .facts dd { margin: 0; display: grid; color: var(--ink); font-weight: 600; overflow-wrap: anywhere; }
+  .facts dd span[dir='ltr'], .facts dd a { unicode-bidi: isolate; justify-self: start; }
+  .facts a { color: var(--ink); text-decoration: none; }
+  .facts a:hover { color: var(--gold-deep); text-decoration: underline; }
+  @media (max-width: 420px) { .facts div { grid-template-columns: 1fr; gap: 0.2rem; } }
   .who-photo :global(img), .market-photo :global(img) { width: 100%; height: 100%; object-fit: cover; }
   .who-text { color: var(--text-muted); font-size: var(--step-1); }
   .highlights { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr)); gap: 0.9rem; margin-block-start: 2rem !important; }

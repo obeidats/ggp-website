@@ -7,7 +7,9 @@ export const site = {
   tagline: { en: 'Connecting Opportunity Across the Gulf', ar: 'نربط الفرص عبر الخليج' } satisfies L,
   url: 'https://ggp-oman.com',
   domain: 'ggp-oman.com',
-  founded: 2014,
+  founded: 2012,
+  cr: '1133144',
+  mailingAddress: '767 / 132',
 
   phone: '+968 97280130',
   phoneHref: 'tel:+96897280130',

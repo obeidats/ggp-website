@@ -36,7 +36,7 @@ export const story = {
   title: { en: 'Our Story', ar: 'قصتنا' } satisfies L,
   subtitle: { en: 'From a clear beginning to a regional impact.', ar: 'من بداية واضحة إلى أثر إقليمي.' } satisfies L,
   steps: [
-    { icon: 'Flag', title: { en: '2014', ar: '2014' }, text: { en: 'The beginning of Global Gulf Pulse.', ar: 'انطلاقة نبض الخليج العالمية.' } },
+    { icon: 'Flag', title: { en: '2012', ar: '2012' }, text: { en: 'The beginning of Global Gulf Pulse.', ar: 'انطلاقة نبض الخليج العالمية.' } },
     { icon: 'ChartNoAxesColumnIncreasing', title: { en: 'Growth', ar: 'النمو' }, text: { en: 'Omanisation, building capabilities and expanding our value across the region.', ar: 'التعمين، وبناء القدرات، وتوسيع قيمتنا في أرجاء المنطقة.' } },
     { icon: 'Handshake', title: { en: 'Partnerships', ar: 'الشراكات' }, text: { en: 'Creating trusted relationships that deliver real results.', ar: 'بناء علاقات موثوقة تحقق نتائج حقيقية.' } },
     { icon: 'Earth', title: { en: 'Regional Opportunities', ar: 'الفرص الإقليمية' }, text: { en: 'Connecting organisations with the right opportunities across Oman and the Gulf.', ar: 'ربط المؤسسات بالفرص المناسبة في عُمان والخليج.' } },
@@ -215,7 +215,7 @@ export const roadmap = {
   title: { en: 'Building the Next Chapter', ar: 'نبني الفصل القادم' } satisfies L,
   closing: { en: 'From Oman to wider regional opportunities.', ar: 'من عُمان إلى آفاق إقليمية أوسع.' } satisfies L,
   milestones: [
-    { year: 2014, icon: 'Flag', title: { en: 'Established', ar: 'التأسيس' } },
+    { year: 2012, icon: 'Flag', title: { en: 'Established', ar: 'التأسيس' } },
     { year: 2020, icon: 'ChartNoAxesColumnIncreasing', title: { en: 'Business Development', ar: 'تطوير الأعمال' } },
     { year: 2026, icon: 'Handshake', title: { en: 'Strategic Partnerships', ar: 'الشراكات الاستراتيجية' } },
     { year: 2030, icon: 'Earth', title: { en: 'Regional Opportunities', ar: 'الفرص الإقليمية' } },
