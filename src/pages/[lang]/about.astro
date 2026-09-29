@@ -283,7 +283,7 @@ const marketFacts = [
 <style>
   .who { align-items: start; }
   .who-photo { aspect-ratio: 4 / 3; }
-  .profile { border-radius: var(--radius-lg); background: var(--white); border: 1px solid var(--line); box-shadow: var(--shadow); overflow: hidden; }
+  .profile { container-type: inline-size; border-radius: var(--radius-lg); background: var(--white); border: 1px solid var(--line); box-shadow: var(--shadow); overflow: hidden; }
   .profile-head {
     display: flex;
     align-items: center;
@@ -302,12 +302,12 @@ const marketFacts = [
   .facts div + div { border-block-start: 1px solid var(--line); }
   .facts div:nth-child(even) { background: var(--cream); }
   .facts dt { color: var(--gold-deep); font-size: var(--step--1); font-weight: 700; letter-spacing: 0.02em; white-space: nowrap; }
-  .facts dd { margin: 0; display: grid; gap: 0.15rem; color: var(--ink); font-weight: 600; line-height: 1.5; overflow-wrap: anywhere; }
+  .facts dd { margin: 0; display: grid; gap: 0.15rem; color: var(--ink); font-weight: 600; line-height: 1.5; overflow-wrap: break-word; }
   .facts dd > * { justify-self: start; unicode-bidi: isolate; }
-  .facts dd [dir='ltr'] { font-variant-numeric: tabular-nums; }
   .facts a { color: var(--ink); text-decoration: none; }
   .facts a:hover { color: var(--gold-deep); text-decoration: underline; }
-  @media (max-width: 480px) {
+  /* Narrow card (phones, and laptops where the column is tight): label above value. */
+  @container (max-width: 520px) {
     .facts { grid-template-columns: 1fr; }
     .facts div { row-gap: 0.2rem; }
     .facts dt { white-space: normal; }
