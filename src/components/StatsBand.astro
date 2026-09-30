@@ -17,16 +17,17 @@ interface Stat {
   decimals?: number;
   prefix?: string;
   suffix?: string;
-  animate?: boolean;
+  /** false for years: no thousands separator (2012, not 2,012). */
+  grouping?: boolean;
 }
 const stats: Stat[] = [
-  { icon: 'Flag', value: site.founded, label: { en: 'Established', ar: 'سنة التأسيس' }, animate: false },
+  { icon: 'Flag', value: site.founded, label: { en: 'Established', ar: 'سنة التأسيس' }, grouping: false },
   { icon: 'ClipboardList', value: portfolioTotals.projects, label: { en: 'Projects & contracts managed', ar: 'مشاريع وعقود تحت إدارتنا' } },
   { icon: 'Clock3', value: portfolioTotals.ongoing, label: { en: 'Ongoing projects', ar: 'مشاريع قيد التنفيذ' } },
   { icon: 'Coins', value: portfolioTotals.valueOMR / 1_000_000, decimals: 1, ...(lang === 'ar' ? { suffix: `مليون ${t('label.omr')}` } : { prefix: t('label.omr'), suffix: 'M' }), label: { en: 'Total portfolio value', ar: 'إجمالي قيمة المحفظة' } },
 ];
 const show = (s: Stat) =>
-  s.animate === false ? String(s.value) : formatNumber(s.value, { minimumFractionDigits: s.decimals ?? 0, maximumFractionDigits: s.decimals ?? 0 });
+  formatNumber(s.value, { minimumFractionDigits: s.decimals ?? 0, maximumFractionDigits: s.decimals ?? 0, useGrouping: s.grouping ?? true });
 ---
 
 <section class="stats" aria-label={lang === 'ar' ? 'أرقامنا' : 'GGP in numbers'}>
@@ -40,7 +41,7 @@ const show = (s: Stat) =>
             </span>
             <p class="value">
               {s.prefix && <span class="affix">{s.prefix} </span>}
-              <span data-count={s.animate === false ? undefined : s.value} data-decimals={s.decimals ?? 0}>
+              <span data-count={s.value} data-decimals={s.decimals ?? 0} data-grouping={s.grouping === false ? 'false' : undefined}>
                 {show(s)}
               </span>
               {s.suffix && <span class="affix">{s.suffix}</span>}

@@ -8,6 +8,7 @@ import PulseLine from '@/components/PulseLine.astro';
 import Wave from '@/components/Wave.astro';
 import CtaBand from '@/components/CtaBand.astro';
 import { photos } from '@/data/photos';
+import { team } from '@/data/team';
 import { difference, homeMarket, mission, pillars, roadmap, story, values, vision, whoWeAre } from '@/data/company';
 import { langPaths, useT, type Lang } from '@/i18n/ui';
 import { site } from '@/config/site';
@@ -33,6 +34,11 @@ const copy = {
   diffEyebrow: { en: 'Our difference', ar: 'ما يميّزنا' },
   marketEyebrow: { en: 'Where we are', ar: 'أين نحن' },
   roadmapEyebrow: { en: 'Looking ahead', ar: 'نظرة إلى المستقبل' },
+  teamEyebrow: { en: 'People', ar: 'فريقنا' },
+  teamTitle: { en: 'Our Team', ar: 'فريق العمل' },
+  teamLead: { en: 'The people behind GGP.', ar: 'الأشخاص وراء نبض الخليج العالمية.' },
+  teamSoon: { en: 'Coming soon', ar: 'قريبًا' },
+  teamSoonNote: { en: 'Team profiles will be published here soon.', ar: 'سيتم نشر الملفات التعريفية لفريق العمل هنا قريبًا.' },
   achieved: { en: 'Achieved', ar: 'تحقّق' },
   now: { en: 'Current focus', ar: 'تركيزنا الحالي' },
   goal: { en: 'Goal', ar: 'هدف' },
@@ -254,6 +260,44 @@ const marketFacts = [
     </div>
   </section>
 
+  <!-- TEAM -->
+  <section class="section section--white" id="team">
+    <div class="container">
+      <div class="team-head">
+        <SectionHeading eyebrow={copy.teamEyebrow[lang]} title={copy.teamTitle[lang]} lead={copy.teamLead[lang]} />
+        {team.length === 0 && <p class="soon-pill" data-reveal><Icon name="Clock3" size={18} />{copy.teamSoon[lang]}</p>}
+      </div>
+      {
+        team.length > 0 ? (
+          <ul role="list" class="team">
+            {team.map((m, i) => (
+              <li class="member" data-reveal style={`--delay:${(i % 4) * 0.08}s`}>
+                <span class="avatar">
+                  {m.photo ? <Image src={m.photo} alt={m.name[lang]} widths={[160, 320]} sizes="140px" /> : <Icon name="UsersRound" size={36} />}
+                </span>
+                <h3>{m.name[lang]}</h3>
+                <p>{m.role[lang]}</p>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <>
+            <ul role="list" class="team" aria-hidden="true">
+              {[0, 1, 2, 3].map((i) => (
+                <li class="member" data-reveal style={`--delay:${i * 0.08}s`}>
+                  <span class="avatar"><Icon name="UsersRound" size={36} /></span>
+                  <span class="bar" />
+                  <span class="bar bar--short" />
+                </li>
+              ))}
+            </ul>
+            <p class="team-note" data-reveal>{copy.teamSoonNote[lang]}</p>
+          </>
+        )
+      }
+    </div>
+  </section>
+
   <!-- ROADMAP -->
   <section class="section section--sand">
     <div class="container">
@@ -441,4 +485,50 @@ const marketFacts = [
     text-align: center;
   }
   .rm-closing :global(svg) { color: #a8781f; flex: none; }
+  .team-head { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 1.25rem 2rem; }
+  .team-head > .soon-pill { margin: 0; }
+  .team-head + * { margin-block-start: clamp(2rem, 1.5rem + 2vw, 3.5rem); }
+  .soon-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
+    padding: 0.6rem 1.25rem;
+    border-radius: 999px;
+    border: 1px solid var(--gold);
+    background: rgba(195, 145, 45, 0.08);
+    color: var(--gold-deep);
+    font-weight: 700;
+  }
+  .team { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 230px), 1fr)); gap: 1.5rem; }
+  .member {
+    display: grid;
+    justify-items: center;
+    align-content: start;
+    gap: 0.6rem;
+    padding: 1.9rem 1.5rem;
+    text-align: center;
+    border-radius: var(--radius-lg);
+    background: var(--white);
+    border: 1px solid var(--line);
+    box-shadow: 0 4px 18px -12px rgba(10, 26, 43, 0.25);
+  }
+  .avatar {
+    width: 140px;
+    height: 140px;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    overflow: hidden;
+    margin-block-end: 1rem;
+    background: linear-gradient(135deg, var(--sand), #f7f3ea);
+    color: var(--gold);
+  }
+  .avatar :global(img) { width: 100%; height: 100%; object-fit: cover; }
+  .member h3 { font-family: var(--font-body); font-size: var(--step-1); font-weight: 700; color: var(--ink); }
+  :root[lang='ar'] .member h3 { font-family: var(--font-display); }
+  .member p { color: var(--gold-deep); font-size: var(--step--1); font-weight: 600; }
+  :root[lang='ar'] .member p { font-size: var(--step-0); }
+  .bar { display: block; width: 62%; height: 18px; border-radius: 6px; background: linear-gradient(90deg, var(--sand), #f4f1ea); }
+  .bar--short { width: 42%; height: 13px; }
+  .team-note { margin-block-start: 2rem; text-align: center; color: var(--text-muted); font-size: var(--step-1); }
 </style>

@@ -102,19 +102,20 @@ const ogUrl = new URL(og.src, Astro.site).href;
       // Animated number counters: <span data-count="23711224" data-decimals="0">
       const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
       const counters = document.querySelectorAll<HTMLElement>('[data-count]');
-      const fmt = (n: number, d: number) => n.toLocaleString('en-US', { minimumFractionDigits: d, maximumFractionDigits: d });
+      const fmt = (n: number, d: number, g: boolean) => n.toLocaleString('en-US', { minimumFractionDigits: d, maximumFractionDigits: d, useGrouping: g });
       const run = (el: HTMLElement) => {
         const target = Number(el.dataset.count);
         const decimals = Number(el.dataset.decimals ?? 0);
+        const grouping = el.dataset.grouping !== 'false';
         if (reduce) return;
         const start = performance.now();
         const dur = 1600;
         const tick = (now: number) => {
           const p = Math.min((now - start) / dur, 1);
           const eased = 1 - Math.pow(1 - p, 3);
-          el.textContent = fmt(target * eased, decimals);
+          el.textContent = fmt(target * eased, decimals, grouping);
           if (p < 1) requestAnimationFrame(tick);
-          else el.textContent = fmt(target, decimals);
+          else el.textContent = fmt(target, decimals, grouping);
         };
         requestAnimationFrame(tick);
       };
