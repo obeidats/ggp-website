@@ -22,6 +22,7 @@ import pipeline from '@/assets/photos/pipeline.jpg';
 import solarField from '@/assets/photos/solar-field.jpg';
 import meetingRoom from '@/assets/photos/meeting-room.jpg';
 import boardroom from '@/assets/photos/boardroom.jpg';
+import safetyBriefing from '@/assets/photos/safety-briefing.jpg';
 
 export interface Photo {
   src: ImageMetadata;
@@ -54,6 +55,7 @@ export const photos = {
   pipeline: { src: pipeline, alt: { en: 'Pipeline sections laid along a construction corridor', ar: 'أنابيب ممدودة على مسار مشروع إنشائي' } },
   solarField: { src: solarField, alt: { en: 'Solar panel field', ar: 'حقل ألواح طاقة شمسية' } },
   meetingRoom: { src: meetingRoom, alt: { en: 'Meeting room prepared for a presentation', ar: 'قاعة اجتماعات مجهزة لعرض تقديمي' } },
+  safetyBriefing: { src: safetyBriefing, alt: { en: 'Safety briefing for a site team in hard hats and high-visibility vests', ar: 'إحاطة سلامة لفريق عمل بالخوذ والسترات العاكسة في الموقع' } },
   boardroom: { src: boardroom, alt: { en: 'Modern boardroom', ar: 'قاعة اجتماعات حديثة' } },
 } satisfies Record<string, Photo>;
 

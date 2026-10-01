@@ -13,6 +13,7 @@ export const site = {
 
   phone: '+968 97280130',
   phoneHref: 'tel:+96897280130',
+  whatsappHref: 'https://wa.me/96897280130',
   email: 'info@ggp-oman.com',
 
   address: {

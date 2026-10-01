@@ -62,6 +62,7 @@ export const ui = {
   'cta.about': { en: 'More about GGP', ar: 'المزيد عن الشركة' },
   'cta.learnMore': { en: 'Learn more', ar: 'اعرف المزيد' },
   'cta.call': { en: 'Call us', ar: 'اتصل بنا' },
+  'cta.whatsapp': { en: 'Chat with us on WhatsApp', ar: 'تواصل معنا عبر واتساب' },
 
   'footer.quickLinks': { en: 'Quick links', ar: 'روابط سريعة' },
   'footer.services': { en: 'Services', ar: 'الخدمات' },
