@@ -147,7 +147,7 @@ const groups: Service['group'][] = ['core', 'support'];
         <p class="closing" data-reveal>{hse.closing[lang]}</p>
       </div>
       <div class="photo photo--arc" data-reveal>
-        <Image src={photos.safetyBriefing.src} alt={photos.safetyBriefing.alt[lang]} widths={[480, 611]} sizes="(min-width: 960px) 40vw, 100vw" />
+        <Image src={photos.safetyBriefing.src} alt={photos.safetyBriefing.alt[lang]} widths={[600, 900, 1400]} sizes="(min-width: 960px) 40vw, 100vw" />
       </div>
     </div>
   </section>
@@ -275,7 +275,9 @@ const groups: Service['group'][] = ['core', 'support'];
   .hse-list p { color: var(--text-on-dark-muted); font-size: var(--step--1); }
   :root[lang='ar'] .hse-list p { font-size: var(--step-0); }
   .closing { margin-block-start: 1.75rem; padding-inline-start: 1.25rem; border-inline-start: 2px solid var(--gold); color: var(--text-on-dark); font-size: var(--step-1); font-family: var(--font-display); }
-  .hse .photo { aspect-ratio: 4 / 5; }
-  .hse .photo :global(img) { width: 100%; height: 100%; object-fit: cover; }
+  /* Show the whole photo: natural aspect ratio, no hover zoom, smaller arc so nothing is clipped */
+  .hse .photo { border-start-start-radius: 60px; }
+  .hse .photo :global(img) { display: block; width: 100%; height: auto; }
+  .hse .photo:hover :global(img) { transform: none; }
   .media .photo :global(img) { width: 100%; height: 100%; object-fit: cover; }
 </style>
