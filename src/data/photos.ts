@@ -9,7 +9,7 @@ import mosqueCourtyard from '@/assets/photos/mosque-courtyard.jpg';
 import nizwaFort from '@/assets/photos/nizwa-fort.jpg';
 import muscatHills from '@/assets/photos/muscat-hills.jpg';
 import siteTeam from '@/assets/photos/site-team.jpg';
-import constructionSupervisor from '@/assets/photos/construction-supervisor.jpg';
+import manpowerTeam from '@/assets/photos/manpower-team.jpg';
 import rebarWorks from '@/assets/photos/rebar-works.jpg';
 import powerLinesSunset from '@/assets/photos/power-lines-sunset.jpg';
 import transmissionTower from '@/assets/photos/transmission-tower.jpg';
@@ -43,7 +43,7 @@ export const photos = {
   nizwaFort: { src: nizwaFort, alt: { en: 'Nizwa Fort, Oman', ar: 'قلعة نزوى، عُمان' } },
   muscatHills: { src: muscatHills, alt: { en: 'View over Muscat from the Hajar mountains', ar: 'إطلالة على مسقط من جبال الحجر' } },
   siteTeam: { src: siteTeam, alt: { en: 'Site team in safety gear walking on a project site', ar: 'فريق عمل بمعدات السلامة في موقع مشروع' } },
-  constructionSupervisor: { src: constructionSupervisor, alt: { en: 'Supervisor in hard hat and high-visibility vest on a construction site', ar: 'مشرف بخوذة وسترة عاكسة في موقع إنشاء' } },
+  manpowerTeam: { src: manpowerTeam, alt: { en: 'Two site workers in hard hats and high-visibility vests coordinating with a clipboard and radio', ar: 'عاملان في الموقع بالخوذ والسترات العاكسة ينسّقان العمل باستخدام لوح ملاحظات وجهاز لاسلكي' } },
   rebarWorks: { src: rebarWorks, alt: { en: 'Worker preparing steel reinforcement on site', ar: 'عامل يجهّز حديد التسليح في الموقع' } },
   powerLinesSunset: { src: powerLinesSunset, alt: { en: 'Power transmission lines at sunset', ar: 'خطوط نقل الكهرباء عند الغروب' } },
   transmissionTower: { src: transmissionTower, alt: { en: 'High-voltage transmission tower', ar: 'برج نقل كهرباء عالي الجهد' } },

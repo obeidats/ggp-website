@@ -108,7 +108,7 @@ export const services: Service[] = [
     id: 'manpower-solutions',
     group: 'support',
     icon: 'HardHat',
-    photo: 'constructionSupervisor',
+    photo: 'manpowerTeam',
     title: { en: 'Manpower Solutions', ar: 'حلول القوى العاملة' },
     summary: {
       en: 'Technical, specialised and non-technical manpower supply that is skilled, reliable and ready for your project.',

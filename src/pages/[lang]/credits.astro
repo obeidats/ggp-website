@@ -21,7 +21,7 @@ const copy = {
   view: { en: 'View', ar: 'عرض' },
 };
 const licenceName = (c: (typeof credits)[number]) =>
-  c.license === 'CC0' ? 'CC0 1.0 (Public Domain)' : c.license === 'PDM' ? 'Public Domain Mark' : `CC ${c.license} ${c.license_version ?? ''}`.trim();
+  c.license === 'CC0' ? 'CC0 1.0 (Public Domain)' : c.license === 'PDM' ? 'Public Domain Mark' : c.license === 'Pexels' ? 'Pexels License' : `CC ${c.license} ${c.license_version ?? ''}`.trim();
 ---
 
 <BaseLayout lang={lang} title={copy.title[lang]} description={copy.lead[lang]} overlayHeader>
