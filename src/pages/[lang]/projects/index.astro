@@ -77,7 +77,7 @@ const sectorsWithProjects = portfolioSectors.filter((s) => projects.some((p) => 
         </li>
         <li data-reveal style="--delay:.24s" class="wide">
           <Icon name="Coins" size={26} />
-          <strong><small>{t('label.omr')}</small> <span data-count={portfolioTotals.valueOMR}>{formatNumber(portfolioTotals.valueOMR)}</span></strong>
+          <strong><small>{t('label.omr')}</small> <span dir="ltr"><span data-count={portfolioTotals.valueOMR}>{formatNumber(portfolioTotals.valueOMR)}</span>/=</span></strong>
           <span class="kpi-label">{copy.valueShort[lang]}</span>
         </li>
       </ul>
