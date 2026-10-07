@@ -43,7 +43,7 @@ export const photos = {
   nizwaFort: { src: nizwaFort, alt: { en: 'Nizwa Fort, Oman', ar: 'قلعة نزوى، عُمان' } },
   muscatHills: { src: muscatHills, alt: { en: 'View over Muscat from the Hajar mountains', ar: 'إطلالة على مسقط من جبال الحجر' } },
   siteTeam: { src: siteTeam, alt: { en: 'Site team in safety gear walking on a project site', ar: 'فريق عمل بمعدات السلامة في موقع مشروع' } },
-  manpowerTeam: { src: manpowerTeam, alt: { en: 'Site worker in a hard hat and safety glasses holding a clipboard on a construction site', ar: 'عامل في الموقع بخوذة ونظارات سلامة يحمل لوح ملاحظات في موقع إنشاء' } },
+  manpowerTeam: { src: manpowerTeam, alt: { en: 'Site worker in a white GGP hard hat and safety glasses holding a clipboard on a construction site', ar: 'عامل في الموقع بخوذة بيضاء تحمل شعار GGP ونظارات سلامة يحمل لوح ملاحظات في موقع إنشاء' } },
   rebarWorks: { src: rebarWorks, alt: { en: 'Worker preparing steel reinforcement on site', ar: 'عامل يجهّز حديد التسليح في الموقع' } },
   powerLinesSunset: { src: powerLinesSunset, alt: { en: 'Power transmission lines at sunset', ar: 'خطوط نقل الكهرباء عند الغروب' } },
   transmissionTower: { src: transmissionTower, alt: { en: 'High-voltage transmission tower', ar: 'برج نقل كهرباء عالي الجهد' } },
