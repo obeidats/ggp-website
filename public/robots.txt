@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://ggp-oman.com/sitemap-index.xml
