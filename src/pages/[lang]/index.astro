@@ -81,6 +81,11 @@ const jsonLd = {
     addressLocality: 'Seeb, Muscat',
     addressCountry: 'OM',
   },
+  location: {
+    '@type': 'Place',
+    geo: { '@type': 'GeoCoordinates', latitude: site.geo.lat, longitude: site.geo.lng },
+    hasMap: site.mapLink,
+  },
   areaServed: ['OM', 'SA', 'AE', 'QA', 'BH', 'KW'],
 };
 const pct = Math.round((portfolioTotals.completed / portfolioTotals.projects) * 100);

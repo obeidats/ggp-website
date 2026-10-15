@@ -44,7 +44,8 @@ const year = new Date().getFullYear();
       <ul role="list" class="contact">
         <li><Icon name="Phone" size={18} /><a href={site.phoneHref} dir="ltr">{site.phone}</a></li>
         <li><Icon name="Mail" size={18} /><a href={`mailto:${site.email}`}>{site.email}</a></li>
-        <li><Icon name="MapPin" size={18} /><address>{site.address[lang].map((line) => <span>{line}</span>)}</address></li>
+        <li><Icon name="MapPin" size={18} /><a href={site.mapLink} target="_blank" rel="noopener"><address>{site.address[lang].map((line) => <span>{line}</span>)}</address></a></li>
+        <li><Icon name="Clock" size={18} /><span><span class="visually-hidden">{t('label.hours')}: </span>{tr(site.hours, lang)}</span></li>
       </ul>
     </div>
   </div>

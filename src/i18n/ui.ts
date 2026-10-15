@@ -73,6 +73,7 @@ export const ui = {
   'label.phone': { en: 'Phone', ar: 'الهاتف' },
   'label.email': { en: 'Email', ar: 'البريد الإلكتروني' },
   'label.address': { en: 'Address', ar: 'العنوان' },
+  'label.hours': { en: 'Working hours', ar: 'ساعات العمل' },
   'label.website': { en: 'Website', ar: 'الموقع الإلكتروني' },
   'label.omr': { en: 'OMR', ar: 'ريال عماني' },
 } satisfies Record<string, L>;

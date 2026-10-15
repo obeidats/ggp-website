@@ -62,7 +62,14 @@ const channels = [
             <span class="icon-badge icon-badge--sm"><Icon name="MapPin" /></span>
             <div>
               <span class="label">{t('label.address')}</span>
-              <address>{site.address[lang].map((line) => <span>{line}</span>)}</address>
+              <a href={site.mapLink} target="_blank" rel="noopener"><address>{site.address[lang].map((line) => <span>{line}</span>)}</address></a>
+            </div>
+          </li>
+          <li>
+            <span class="icon-badge icon-badge--sm"><Icon name="Clock" /></span>
+            <div>
+              <span class="label">{t('label.hours')}</span>
+              <span class="value" dir="auto">{site.hours[lang]}</span>
             </div>
           </li>
         </ul>
@@ -113,9 +120,9 @@ const channels = [
   .channels div { display: grid; line-height: 1.45; }
   .label { font-size: 0.78rem; font-weight: 800; letter-spacing: 0.12em; text-transform: uppercase; color: var(--gold-light); }
   :root[lang='ar'] .label { letter-spacing: 0; font-size: 0.9rem; }
-  .channels a, address { color: var(--text-on-dark); font-weight: 600; font-style: normal; }
+  .channels a, address, .value { color: var(--text-on-dark); font-weight: 600; font-style: normal; }
   [dir='rtl'] .channels a[dir='ltr'] { text-align: right; }
-  .channels a:hover { color: var(--gold-light); }
+  .channels a:hover, .channels a:hover address { color: var(--gold-light); }
   address { display: grid; }
   .form-card { padding: clamp(1.75rem, 1rem + 2vw, 3rem); border-radius: var(--radius-lg); background: var(--white); border: 1px solid var(--line); box-shadow: var(--shadow); }
   .form-card :global(.heading h2) { font-size: var(--step-3); }

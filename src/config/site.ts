@@ -21,9 +21,12 @@ export const site = {
     ar: ['ص.ب 767، الرمز البريدي 132', 'الخوض، السيب', 'مسقط، سلطنة عُمان'],
   },
   location: { en: 'Muscat · Sultanate of Oman', ar: 'مسقط · سلطنة عُمان' } satisfies L,
+  hours: { en: '8:00 AM – 4:00 PM', ar: '8:00 صباحاً – 4:00 مساءً' } satisfies L,
 
-  mapEmbed: 'https://www.google.com/maps?q=Al+Khoudh,+Seeb,+Muscat,+Oman&z=13&output=embed',
-  mapLink: 'https://www.google.com/maps/search/?api=1&query=Al+Khoudh,+Seeb,+Muscat,+Oman',
+  /** Office pin (from the company's shared Google Maps link). */
+  geo: { lat: 23.6211679, lng: 58.2118542 },
+  mapEmbed: 'https://www.google.com/maps?q=23.6211679,58.2118542&z=16&output=embed',
+  mapLink: 'https://www.google.com/maps/search/?api=1&query=23.6211679,58.2118542',
 
   /** Contact-form endpoint (see .env.example). Empty = mailto fallback. */
   formEndpoint: (import.meta.env.PUBLIC_FORM_ENDPOINT as string | undefined) ?? '',
