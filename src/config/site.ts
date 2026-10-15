@@ -24,9 +24,9 @@ export const site = {
   hours: { en: '8:00 AM – 4:00 PM', ar: '8:00 صباحاً – 4:00 مساءً' } satisfies L,
 
   /** Office pin (from the company's shared Google Maps link). */
-  geo: { lat: 23.6211679, lng: 58.2118542 },
-  mapEmbed: 'https://www.google.com/maps?q=23.6211679,58.2118542&z=16&output=embed',
-  mapLink: 'https://www.google.com/maps/search/?api=1&query=23.6211679,58.2118542',
+  geo: { lat: 23.6208375, lng: 58.2120156 },
+  mapEmbed: 'https://www.google.com/maps?q=23.6208375,58.2120156&z=16&output=embed',
+  mapLink: 'https://maps.app.goo.gl/J4gTxcC4TXq8GLSu8',
 
   /** Contact-form endpoint (see .env.example). Empty = mailto fallback. */
   formEndpoint: (import.meta.env.PUBLIC_FORM_ENDPOINT as string | undefined) ?? '',
