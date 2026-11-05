@@ -7,7 +7,8 @@
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
-    "check": "astro check"
+    "check": "astro check",
+    "deploy": "npm run build && tar -czf - -C dist . | ssh alwaysdata \"set -e; rm -rf ~/sites/ggp-oman.new; mkdir -p ~/sites/ggp-oman.new; tar -xzf - -C ~/sites/ggp-oman.new; rm -rf ~/sites/ggp-oman.old; if [ -d ~/sites/ggp-oman ]; then mv ~/sites/ggp-oman ~/sites/ggp-oman.old; fi; mv ~/sites/ggp-oman.new ~/sites/ggp-oman; echo Deployed ggp-oman\""
   },
   "dependencies": {
     "@astrojs/sitemap": "^3.7.4",
